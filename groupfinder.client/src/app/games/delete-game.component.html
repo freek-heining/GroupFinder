@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>{{pageTitle}}</h2>
+
+<mat-dialog-content class="mat-typography">
+
+  <p *ngIf="data">
+    Are you sure you want to delete the game: {{data.title}}?
+  </p>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close cdkFocusInitial>Cancel</button>
+  <button mat-button [mat-dialog-close]="data">Delete</button>
+</mat-dialog-actions>

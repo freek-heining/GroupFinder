@@ -1,0 +1,17 @@
+<div *ngIf='game'>
+  <h2>{{pageTitle}}</h2>
+  <p>Title: {{game.title}}</p>
+  <p>Date: {{game.date | date}}</p>
+  <p>Location: {{game.location}}</p>
+  <p>Host: {{game.hostPlayer.firstName}} {{game.hostPlayer.lastName}}</p>
+  <p>Host Race: {{game.hostPlayerRace.name}}</p>
+  <p *ngIf='game.guestPlayer'>Guest: {{game.guestPlayer.firstName}} {{game.guestPlayer.lastName}}</p>
+  <p *ngIf='game.guestPlayerRace'>Guest Race: {{game.guestPlayerRace.name}}</p>
+  <p>Gamesystem: {{gameSystems[game.gameSystem]}}</p>
+  <p *ngIf="game.reminderSet; else elseReminder">Reminder Set: Yes</p>
+  <ng-template #elseReminder><p>Reminder Set: No</p></ng-template>
+  <p *ngIf="game.played; else elsePlayed">Game played: Yes</p>
+  <ng-template #elsePlayed><p>Game played: No</p></ng-template>
+  <button type="button" (click)="onBack()">< Back</button>
+  <button type="button" (click)="openEditDialog(game)">Edit</button>
+</div>

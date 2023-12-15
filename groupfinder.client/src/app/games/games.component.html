@@ -1,0 +1,37 @@
+<p>games works!</p>
+
+<h1>{{pageTitle}}</h1>
+
+<p *ngIf="!games"><em>Loading... Please refresh once the ASP.NET backend has started.</em></p>
+
+<mat-spinner *ngIf="!games"></mat-spinner>
+
+<div id="filter">
+  <h3>Filter By:</h3>
+  <input type="text" [(ngModel)]="listFilter" />
+  <h4>Filtered by: {{listFilter}}</h4>
+</div>
+
+<ul *ngIf="games">
+  <ng-container *ngFor="let game of filteredGames">
+    <li *ngIf="game.deleted == false">
+      <h2>Title: {{game.title}}</h2>
+      <p>GameId: {{game.gameId}}</p>
+      <p>Host Race: {{game.hostPlayerRace.name}}</p>
+      <p>Date: {{game.date}}</p>
+      <p>Location: {{game.location}}</p>
+
+      <button mat-fab color="primary" aria-label="button with a lookinglass icon" [routerLink]="['/games', game.gameId]">
+        <mat-icon>zoom_in</mat-icon>
+      </button>
+
+      <button mat-fab color="primary" aria-label="button with a trash icon" (click)="openDeleteDialog(game)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </li>
+  </ng-container>
+</ul>
+
+<button mat-fab color="primary" aria-label="button with a plus icon" (click)="openCreateDialog()">
+  <mat-icon>add</mat-icon>
+</button>
