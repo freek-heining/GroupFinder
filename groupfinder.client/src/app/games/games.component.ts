@@ -4,9 +4,9 @@ import { GameService } from '../../services/game.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateGameComponent } from './create-game.component';
 import { DeleteGameComponent } from './delete-game.component';
-import { IGame } from '../../interfaces/IGame';
 import { IRace } from '../../interfaces/IRace';
 import { IUser } from '../../interfaces/IUser';
+import { IGame } from '../../interfaces/IGame';
 
 @Component({
   selector: 'app-games',

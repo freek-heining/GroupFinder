@@ -4,8 +4,6 @@
 
 <p *ngIf="!games"><em>Loading... Please refresh once the ASP.NET backend has started.</em></p>
 
-<mat-spinner *ngIf="!games"></mat-spinner>
-
 <div id="filter">
   <h3>Filter By:</h3>
   <input type="text" [(ngModel)]="listFilter" />

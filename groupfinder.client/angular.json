@@ -61,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "groupfinder.client:build:production"
+              "buildTarget": "groupfinder.client:build:production"
             },
             "development": {
-              "browserTarget": "groupfinder.client:build:development"
+              "buildTarget": "groupfinder.client:build:development"
             }
           },
           "defaultConfiguration": "development",
@@ -75,7 +75,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "groupfinder.client:build"
+            "buildTarget": "groupfinder.client:build"
           }
         },
         "test": {

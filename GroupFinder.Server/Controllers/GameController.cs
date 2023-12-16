@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LookingForGroup.AngularApp.Controllers;
 
-[Authorize(Policy = "MemberOnly")]
+//[Authorize(Policy = "MemberOnly")]
 [ApiController]
 [Route("api/[controller]")]
 public class GameController(IGameService gameService) : ControllerBase
