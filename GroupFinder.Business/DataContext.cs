@@ -5,17 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GroupFinder.Business;
 
-public class DataContext(DbContextOptions<DataContext> options) : IdentityDbContext<ApplicationUser>(options)
+public class DataContext : IdentityDbContext<ApplicationUser>
 {
+    public DataContext(DbContextOptions<DataContext> options)
+        : base(options)
+    { 
+    }
+
     // Entities
     public DbSet<Game> Games => Set<Game>();
     public DbSet<Race> Races => Set<Race>();
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-            optionsBuilder.UseSqlServer(AppConfig.GetConnectionString());
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
