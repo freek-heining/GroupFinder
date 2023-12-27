@@ -4,6 +4,5 @@ namespace GroupFinder.Domain.Interfaces;
 
 public interface IAuthenticateService
 {
-    Task<bool> IsValidUserAsync(string username, string password);
-    Task<string> GetTokenAsync(LoginModel request);
+    Task<bool> IsValidUserAsync(string email, string password);
 }

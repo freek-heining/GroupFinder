@@ -1,5 +1,6 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { ApiAuthorizationModule } from '../api-authorization/api-authorization.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -24,6 +25,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AuthInterceptor } from '../api-authorization/auth.interceptor';
+import { AuthGuard } from '../api-authorization/auth.guard';
 
 @NgModule({
   declarations: [
@@ -37,12 +40,13 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     EditGameComponent
   ],
   imports: [
+    ApiAuthorizationModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'games', component: GamesComponent },
+      { path: 'games', component: GamesComponent, canActivate: [AuthGuard] },
       { path: 'games/:id', component: GameDetailComponent },
       { path: '', redirectTo: '', pathMatch: 'full' },
       { path: '**', component: PageNotFoundComponent }
@@ -59,7 +63,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatNativeDateModule,
     MatCheckboxModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

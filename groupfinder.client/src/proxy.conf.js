@@ -3,10 +3,8 @@ const PROXY_CONFIG = [
     context: [
       "/api/game",
       "/api/race",
-      "/api/weatherforecast",
-      "/api/auth",
       "/api/user",
-      "/identity/register",
+      "/identity/",
     ],
     target: "https://localhost:7154",
     secure: false

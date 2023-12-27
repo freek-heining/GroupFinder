@@ -13,9 +13,9 @@ public class AuthenticateService(IOptions<TokenSettings> tokenSettings, UserMana
     private readonly TokenSettings _tokenSettings = tokenSettings.Value;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-    public async Task<bool> IsValidUserAsync(string username, string password)
+    public async Task<bool> IsValidUserAsync(string email, string password)
     {
-        ApplicationUser? user = await _userManager.FindByNameAsync(username);
+        ApplicationUser? user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
             return false;
@@ -24,31 +24,5 @@ public class AuthenticateService(IOptions<TokenSettings> tokenSettings, UserMana
             return true;
         else
             return false;
-    }
-
-    public async Task<string> GetTokenAsync(LoginModel request)
-    {
-        ApplicationUser? user = await _userManager.FindByNameAsync(request.Username!); // only to create id in claim. IsValidUserAsync is used to validate user before calling GetTokenAsync
-
-        ArgumentNullException.ThrowIfNull(user);
-
-        Claim[] claims =
-        [
-            new Claim(type: "MemberNumber", value: user.Id)
-        ];
-        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_tokenSettings.Secret!));
-        SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256);
-
-        JwtSecurityToken jwtToken = new(
-            issuer: _tokenSettings.Issuer,
-            audience: _tokenSettings.Audience,
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(_tokenSettings.AccessExpiration),
-            signingCredentials: credentials
-        );
-
-        string token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-
-        return token;
     }
 }

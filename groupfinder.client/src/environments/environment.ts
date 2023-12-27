@@ -6,8 +6,11 @@ export const environment = {
   production: false,
   gameApiUrl: '/api/game',
   raceApiUrl: '/api/race',
-  authApiUrl: '/api/auth',
-  userApiUrl: '/api/user'
+  authApiUrl: '/identity',
+  userApiUrl: '/api/user',
+  localToken: 'bearerToken',
+  localTokenExpiry: 'tokenExpiry',
+  localRefreshToken: 'refreshToken'
 };
 
 /*

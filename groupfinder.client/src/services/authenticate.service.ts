@@ -12,49 +12,55 @@ export class AuthenticateService {
   private authUrl = environment.authApiUrl;
   constructor(private http: HttpClient) { }
 
-  getToken(credentials: ILoginModel): Observable<IAuthenticatedResponse> {
-    return this.http.post<IAuthenticatedResponse>(this.authUrl, credentials)
+  public getToken(credentials: ILoginModel): Observable<IAuthenticatedResponse> {
+    return this.http.post<IAuthenticatedResponse>(this.authUrl + '/login', credentials) /*<IAuthenticatedResponse> = generic parameter*/
       .pipe(
         tap(data => console.log('Token', JSON.stringify(data))),
         catchError(this.handleError)
       );
   }
 
-  isAuthenticated(): boolean { // Checks if token in local storage and not expired
-    const token: string | null = localStorage.getItem("jwt");
-    if (token && !this.tokenExpired(token)) {
-      console.log('user is authenticated');
-      return true;
+  public isAuthenticated(): boolean { // Checks if token in local storage and not expired
+    const token: string | null = localStorage.getItem(environment.localToken);
+    const expires: string | null = localStorage.getItem(environment.localTokenExpiry);
+
+    if (!token || !expires) {
+      console.log('user is NOT authenticated');
+      return false;
     }
-    console.log('user is NOT authenticated');
-    return false;
+
+    if (this.tokenExpired(expires)) {
+      console.log('user is NOT authenticated');
+      return false;
+    }
+
+    console.log('user IS authenticated');
+    return true;
   }
 
-  isAuthenticatedObservable(): Observable<boolean> { // Checks if token in local storage and not expired
-    const token: string | null = localStorage.getItem("jwt");
-    if (token && !this.tokenExpired(token)) {
-      console.log('user is authenticated');
-      return of(true);
+  public isAuthenticatedObservable(): Observable<boolean> { // Checks if token in local storage and not expired
+    const token: string | null = localStorage.getItem(environment.localToken);
+    const expires: string | null = localStorage.getItem(environment.localTokenExpiry);
+
+    if (!token || !expires) {
+      console.log('user is NOT authenticated');
+      return of(false);
     }
-    console.log('user is NOT authenticated');
-    return of(false);
+
+    if (this.tokenExpired(expires)) {
+      console.log('user is NOT authenticated');
+      return of(false);
+    }
+
+    console.log('user IS authenticated');
+    return of(true);
   }
 
-  tokenExpired(token: string): boolean {
-    const expiry = this.parseJwt(token).exp;
-    const currentTime = Math.floor((new Date).getTime() / 1000);
+  public tokenExpired(expires: string): boolean {
+    const currentTime = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
+    const expiry = parseInt(expires);
     return currentTime >= expiry;
   }
-
-  private parseJwt(token: string) {
-  const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-  }).join(''));
-
-  return JSON.parse(jsonPayload);
-}
 
   private handleError(err: HttpErrorResponse) {
     // in a real world app, we may send the server to some remote logging infrastructure
