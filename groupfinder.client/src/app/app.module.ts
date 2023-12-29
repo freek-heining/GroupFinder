@@ -27,6 +27,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthInterceptor } from '../api-authorization/auth.interceptor';
 import { AuthGuard } from '../api-authorization/auth.guard';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { AuthGuard } from '../api-authorization/auth.guard';
     GameDetailComponent,
     CreateGameComponent,
     DeleteGameComponent,
-    EditGameComponent
+    EditGameComponent,
+    AboutComponent
   ],
   imports: [
     ApiAuthorizationModule,
@@ -46,6 +48,7 @@ import { AuthGuard } from '../api-authorization/auth.guard';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
+      { path: 'about', component: AboutComponent, pathMatch: 'full' },
       { path: 'games', component: GamesComponent, canActivate: [AuthGuard] },
       { path: 'games/:id', component: GameDetailComponent },
       { path: '', redirectTo: '', pathMatch: 'full' },

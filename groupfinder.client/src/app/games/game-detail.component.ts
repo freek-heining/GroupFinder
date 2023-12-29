@@ -30,10 +30,6 @@ export class GameDetailComponent implements OnInit {
     this.getGameData(id);
   }
 
-  delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   getGameData(id: number) {
     this.gamesService.getGame(id).subscribe({
       next: game => this.game = game,
@@ -43,7 +39,7 @@ export class GameDetailComponent implements OnInit {
 
   // Back
   onBack(): void {
-    this.router.navigate(['/games']);
+    this.router.navigateByUrl('/games');
   }
 
   // Edit Game

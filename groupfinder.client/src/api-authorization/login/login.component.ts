@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ILoginModel } from '../../interfaces/ILoginModel';
 import { BehaviorSubject } from 'rxjs';
 import { AuthenticateService } from '../../services/authenticate.service';
@@ -25,6 +25,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthenticateService) { }
 
   async ngOnInit(): Promise<void> {
@@ -50,7 +51,9 @@ export class LoginComponent implements OnInit {
           localStorage.setItem(environment.localRefreshToken, refreshToken);
 
           this.invalidLogin = false;
-          this.router.navigate(["/"], { replaceUrl: true }); // When true, navigates while replacing the current state in history.
+
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/'; // get return url from query parameters or default to home page
+          this.router.navigateByUrl(returnUrl, { replaceUrl: true }); // When true, navigates while replacing the current state in history.
         },
         error: err => {
           this.errorMessage = err,

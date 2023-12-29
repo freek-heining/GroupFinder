@@ -1,7 +1,7 @@
 import { AfterContentChecked, Component, OnInit } from '@angular/core';
 import { AuthenticateService } from '../../services/authenticate.service';
 import { Observable } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-menu',
@@ -11,12 +11,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class LoginMenuComponent implements OnInit, AfterContentChecked {
   public isUserAuthenticated$?: Observable<boolean>;
   public userName?: string;
-  public returnUrl: string | null | undefined;
+  public returnUrl?: string;
 
   constructor(
     private authenticateService: AuthenticateService,
-    private router: Router,
-    private route: ActivatedRoute) { }
+    private router: Router) { }
 
   ngOnInit() {
     console.log("login-menu!");
@@ -24,6 +23,7 @@ export class LoginMenuComponent implements OnInit, AfterContentChecked {
 
   ngAfterContentChecked() {
     this.isUserAuthenticated$ = this.authenticateService.isAuthenticatedObservable();
-    this.returnUrl = this.route.snapshot.url; // TODO return url 
+    this.returnUrl = this.router.routerState.snapshot.url;
+    console.log('returnUrl = ' + this.returnUrl);
   }
 }
