@@ -1,14 +1,14 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
-import { environment } from '../environments/environment';
+import { AuthenticateService } from '../services/authenticate.service';
 
 export const AuthGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot) => {
-    const router = inject(Router);
-    const token = localStorage.getItem(environment.localToken);
+    const router: Router = inject(Router);
+    const authService = inject(AuthenticateService);
 
-    if (token) { // TODO: expired?
+    if (authService.isAuthenticated()) {
       return true;
     }
 

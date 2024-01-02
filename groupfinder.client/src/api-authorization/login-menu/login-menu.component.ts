@@ -22,7 +22,7 @@ export class LoginMenuComponent implements OnInit, AfterContentChecked {
   }
 
   ngAfterContentChecked() {
-    this.isUserAuthenticated$ = this.authenticateService.isAuthenticatedObservable();
+    this.isUserAuthenticated$ = this.authenticateService.isAuthenticated$();
     this.returnUrl = this.router.routerState.snapshot.url;
     console.log('returnUrl = ' + this.returnUrl);
   }

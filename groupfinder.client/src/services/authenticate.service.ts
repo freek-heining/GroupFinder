@@ -21,45 +21,55 @@ export class AuthenticateService {
   }
 
   public isAuthenticated(): boolean { // Checks if token in local storage and not expired
-    const token: string | null = localStorage.getItem(environment.localToken);
-    const expires: string | null = localStorage.getItem(environment.localTokenExpiry);
+    const accessToken: string | null = localStorage.getItem(environment.localAccessToken);
+    const expiryTimeInSeconds: string | null = localStorage.getItem(environment.localTokenExpiry);
 
-    if (!token || !expires) {
+    if (!accessToken || !expiryTimeInSeconds) {
       console.log('user is NOT authenticated');
       return false;
     }
-
-    if (this.tokenExpired(expires)) {
-      console.log('user is NOT authenticated');
+    else if (this.tokenExpired(expiryTimeInSeconds)) {
+      console.log('token expired: user is NOT authenticated');
       return false;
     }
-
-    console.log('user IS authenticated');
-    return true;
+    else {
+      console.log('user IS authenticated');
+      return true;
+    }
   }
 
-  public isAuthenticatedObservable(): Observable<boolean> { // Checks if token in local storage and not expired
-    const token: string | null = localStorage.getItem(environment.localToken);
-    const expires: string | null = localStorage.getItem(environment.localTokenExpiry);
+  public isAuthenticated$(): Observable<boolean> { // Checks if token in local storage and not expired
+    const accessToken: string | null = localStorage.getItem(environment.localAccessToken);
+    const expiryTimeInSeconds: string | null = localStorage.getItem(environment.localTokenExpiry);
 
-    if (!token || !expires) {
+    if (!accessToken || !expiryTimeInSeconds) {
       console.log('user is NOT authenticated');
       return of(false);
     }
-
-    if (this.tokenExpired(expires)) {
-      console.log('user is NOT authenticated');
+    else if (this.tokenExpired(expiryTimeInSeconds)) {
+      console.log('token expired: user is NOT authenticated');
       return of(false);
     }
-
-    console.log('user IS authenticated');
-    return of(true);
+    else {
+      console.log('user IS authenticated');
+      return of(true);
+    }
   }
 
-  public tokenExpired(expires: string): boolean {
+  private tokenExpired(expiryTimeInSeconds: string): boolean {
     const currentTime = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
-    const expiry = parseInt(expires);
-    return currentTime >= expiry;
+    const expiryTime = parseInt(expiryTimeInSeconds);
+    console.log('currentTime: ' + currentTime);
+    console.log('expiryTime: ' + expiryTime);
+    return currentTime >= expiryTime;
+  }
+
+  public calculateTokenExpiry(tokenExpiry: string): string {
+    const currentTimeInSeconds: number = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
+    const expiryTimeInSeconds: number = parseInt(tokenExpiry) + currentTimeInSeconds; // secs since Unix Epoch + token expiry in secs
+    console.log('currentTimeInSeconds: ' + currentTimeInSeconds);
+    console.log('expiryTimeInSeconds: ' + expiryTimeInSeconds);
+    return expiryTimeInSeconds.toString();
   }
 
   private handleError(err: HttpErrorResponse) {

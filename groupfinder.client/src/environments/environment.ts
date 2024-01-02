@@ -8,7 +8,7 @@ export const environment = {
   raceApiUrl: '/api/race',
   authApiUrl: '/identity',
   userApiUrl: '/api/user',
-  localToken: 'bearerToken',
+  localAccessToken: 'bearerToken',
   localTokenExpiry: 'tokenExpiry',
   localRefreshToken: 'refreshToken'
 };

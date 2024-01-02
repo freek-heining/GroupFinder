@@ -2,6 +2,7 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/c
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { AuthenticateService } from "../services/authenticate.service";
+import { environment } from "../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +12,9 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthenticateService) { }
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const token: string | null = localStorage.getItem("bearerToken");
 
-    if (token && !this.authService.tokenExpired(token)) {
-      const tokenizedReq: HttpRequest<unknown> = req.clone({ headers: req.headers.set('Authorization', `Bearer ${token}`) });
+    if (this.authService.isAuthenticated$().subscribe()) {
+      const tokenizedReq: HttpRequest<unknown> = req.clone({ headers: req.headers.set('Authorization', `Bearer ${localStorage.getItem(environment.localAccessToken)}`) });
       return next.handle(tokenizedReq);
     }
 

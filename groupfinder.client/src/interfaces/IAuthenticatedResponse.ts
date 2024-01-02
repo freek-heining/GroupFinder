@@ -1,5 +1,5 @@
 export interface IAuthenticatedResponse {
   accessToken: string;
-  expiry: string;
+  expiresIn: string;
   refreshToken: string;
 }

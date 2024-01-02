@@ -28,11 +28,11 @@ export class LogoutComponent implements OnInit {
   }
 
   private async logout(): Promise<void> {
-    const isauthenticated = await this.authenticateService.isAuthenticatedObservable();
+    const isauthenticated = await this.authenticateService.isAuthenticated$();
 
     if (isauthenticated) {
       console.log('logging off');
-      localStorage.removeItem(environment.localToken);
+      localStorage.removeItem(environment.localAccessToken);
       localStorage.removeItem(environment.localTokenExpiry);
       localStorage.removeItem(environment.localRefreshToken);
       await this.router.navigate(["/"], { replaceUrl: true });

@@ -42,12 +42,16 @@ export class LoginComponent implements OnInit {
       console.log('logging in');
       this.authService.getToken(this.credentials).subscribe({
         next: (response: IAuthenticatedResponse) => {
-          const token: string = response.accessToken;
-          const expiry: string = response.expiry;
+          const accessToken: string = response.accessToken;
+          const tokenExpiry: string = response.expiresIn;
           const refreshToken: string = response.refreshToken;
 
-          localStorage.setItem(environment.localToken, token);
-          localStorage.setItem(environment.localTokenExpiry, this.calculateExpiry(expiry));
+          console.log('accessToken: ' + accessToken);
+          console.log('tokenExpiry: ' + tokenExpiry);
+          console.log('refreshToken: ' + refreshToken);
+
+          localStorage.setItem(environment.localAccessToken, accessToken);
+          localStorage.setItem(environment.localTokenExpiry, this.authService.calculateTokenExpiry(tokenExpiry)); // secs since Unix Epoch
           localStorage.setItem(environment.localRefreshToken, refreshToken);
 
           this.invalidLogin = false;
@@ -63,9 +67,5 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  private calculateExpiry(expiry: string): string {
-    const currentTimeInSeconds: number = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
-    const expiryTimeInSeconds: number = parseInt(expiry) + currentTimeInSeconds; // secs since Unix Epoch + token expiry in secs
-    return expiryTimeInSeconds.toString();
-  }
+
 }
