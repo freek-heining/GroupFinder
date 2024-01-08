@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GroupFinder.Business;
 
-public class DataContext(DbContextOptions<DataContext> options) : IdentityDbContext<ApplicationUser>(options)
+public class DataContext(DbContextOptions<DataContext> options) : IdentityDbContext<ApplicationUser>(options) // Primary constructor
 {
     // Entities
     public DbSet<Game> Games => Set<Game>();

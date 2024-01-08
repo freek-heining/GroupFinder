@@ -18,4 +18,6 @@ public class ApplicationUser : IdentityUser
     /// Gets or sets the place of residence for this user.
     /// </summary>
     public string? HomeTown { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime RefreshTokenExpiryTime { get; set; }
 }
