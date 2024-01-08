@@ -93,7 +93,6 @@ export class GamesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("Inside ngOnInit!");
     this.sub = this.gamesService.getGames().subscribe({
       next: games => {
         this.games = games;
@@ -104,7 +103,6 @@ export class GamesComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    console.log("Inside ngOnDestroy!");
     this.sub.unsubscribe();
   }
 }

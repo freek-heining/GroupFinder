@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthenticateService } from '../../services/authenticate.service';
 import { environment } from '../../environments/environment';
@@ -19,7 +19,7 @@ export class LogoutComponent implements OnInit {
 
   async ngOnInit() {
     // eslint-disable-next-line no-extra-boolean-cast
-    if (!!window.history.state.local) { // state local given in login-menu with [state]
+    if (!!window.history.state.local) { // state local given in login-menu with [state] 
       await this.logout();
     } else {
       // This prevents regular links to <app>/authentication/logout from triggering a logout
@@ -27,15 +27,17 @@ export class LogoutComponent implements OnInit {
     }
   }
 
-  private async logout(): Promise<void> {
-    const isauthenticated = await this.authenticateService.isAuthenticated$();
+  private async logout() {
+    const isAuthenticated: boolean = await firstValueFrom(this.authenticateService.isAuthenticated$());
 
-    if (isauthenticated) {
+    if (isAuthenticated) {
       console.log('logging off');
-      localStorage.removeItem(environment.localAccessToken);
-      localStorage.removeItem(environment.localTokenExpiry);
-      localStorage.removeItem(environment.localRefreshToken);
-      await this.router.navigate(["/"], { replaceUrl: true });
+      sessionStorage.removeItem(environment.localAccessToken);
+      sessionStorage.removeItem(environment.localTokenExpiry);
+      sessionStorage.removeItem(environment.localRefreshToken);
+      this.router.navigate(["/"], { replaceUrl: true });
     }
+    else
+      console.log('already logged off');
   }
 }

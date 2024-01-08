@@ -4,7 +4,9 @@ const PROXY_CONFIG = [
       "/api/game",
       "/api/race",
       "/api/user",
-      "/identity/",
+      "/identity/refresh",
+      "/identity/login",
+      "/identity/register",
     ],
     target: "https://localhost:7154",
     secure: false
