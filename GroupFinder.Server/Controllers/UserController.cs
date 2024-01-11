@@ -1,6 +1,7 @@
 ﻿using GroupFinder.Domain.Identity;
 using GroupFinder.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LookingForGroup.AngularApp.Controllers;
@@ -8,46 +9,40 @@ namespace LookingForGroup.AngularApp.Controllers;
 [AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserManagementService userManagementService) : ControllerBase
+public class UserController(IUserService userManagementService) : ControllerBase
 {
-    private readonly IUserManagementService _userManagementService = userManagementService;
+    private readonly IUserService _userManagementService = userManagementService;
 
-    [HttpGet("{username}")]
-    public async Task<IActionResult> GetUserByNameAsync(string username)
+    [HttpGet("{email}")]
+    public async Task<IActionResult> GetUserByEmailAsync(string email)
     {
-        ApplicationUser result = await _userManagementService.GetUserByNameAsync(username);
+        ApplicationUser user = await _userManagementService.GetUserByEmailAsync(email);
 
-        if (result == null)
-            return NotFound(new { Message = $"No user found" });
+        if (user == null)
+            return NotFound(new { Message = $"No user found with email: {email}" });
         else
-            return Ok(result);
-    }
-
-    [HttpGet("/current")]
-    public async Task<IActionResult> GetSignedInUserAsync()
-    {
-        ApplicationUser result = await _userManagementService.GetSignedInUserAsync();
-
-        if (result == null)
-            return NotFound(new { Message = $"No user found" });
-        else
-            return Ok(result);
+            return Ok(user);
     }
 
     [HttpGet("id/{id}")]
     public async Task<IActionResult> GetUserByIdAsync(string id)
     {
-        ApplicationUser result = await _userManagementService.GetUserByIdAsync(id);
+        ApplicationUser user = await _userManagementService.GetUserByIdAsync(id);
 
-        if (result == null)
-            return NotFound(new { Message = $"No user found" });
+        if (user == null)
+            return NotFound(new { Message = $"No user found with id: {id}" });
         else
-            return Ok(result);
+            return Ok(user);
     }
 
-    [HttpGet("/signout")]
-    public async Task SignOutCurrentUserAsync()
+    [HttpPost]
+    public async Task<IActionResult> IsValidUserAsync(string email, string password)
     {
-        await _userManagementService.SignOutCurrentUserAsync();
+        bool result = await _userManagementService.IsValidUserAsync(email, password);
+
+        if (!result)
+            return NotFound(new { Message = $"Invalid user" });
+        else
+            return Ok(new { Message = $"Valid user" });
     }
 }

@@ -1,5 +1,4 @@
-﻿using GroupFinder.Business;
-using GroupFinder.Domain.Interfaces;
+﻿using GroupFinder.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,13 +9,12 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
     private readonly DataContext _context = context;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-    public async Task<Game> Create(Game game)
+    public async Task<Game> CreateAsync(Game game)
     {
         if (game == null || game.HostPlayer == null)
             throw new ArgumentNullException(nameof(game));
 
         ApplicationUser? user = await _userManager.FindByIdAsync(game.HostPlayerId);
-
         ArgumentNullException.ThrowIfNull(user);
 
         game.HostPlayer = user;
@@ -28,7 +26,7 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
 
     public IEnumerable<Game> GetAll() => _context.Games.OrderBy(g => g.Date);
 
-    public async Task<Game> GetById(int id)
+    public async Task<Game> GetByIdAsync(int id)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
 
@@ -39,40 +37,34 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
         return foundGame;
     }
 
-    public async Task<Game> Update(Game game)
+    public async Task<Game> UpdateAsync(Game game)
     {
         ArgumentNullException.ThrowIfNull(game);
 
-        _context.Entry(game).State = EntityState.Modified; // Otherwise FK change is not accepted by EF
-
+        _context.Entry(game).State = EntityState.Modified; // Otherwise a FK change is not accepted by EF
         _context.Update(game);
+        
         await SaveChangesAsync();
-
-        ArgumentNullException.ThrowIfNull(game);
 
         return game;
     }
 
-    public async Task<Game> Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
 
         Game? game = await _context.Games.SingleOrDefaultAsync(g => g.GameId == id);
-
-        if (game != null)
-        {
-            game.Deleted = true;
-            _context.Update(game);
-            await SaveChangesAsync();
-        }
-
         ArgumentNullException.ThrowIfNull(game);
 
-        return game;
+        game.Deleted = true;
+
+        int entries = await SaveChangesAsync();
+        return entries > 0;
     }
 
-    public async Task SaveChangesAsync()
+    public async Task<int> SaveChangesAsync()
     {
-        await _context.SaveChangesAsync();
+        int entries = await _context.SaveChangesAsync();
+        return entries;
     }
 }

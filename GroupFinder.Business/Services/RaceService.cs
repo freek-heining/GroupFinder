@@ -1,5 +1,4 @@
-﻿using GroupFinder.Domain.Entities;
-using GroupFinder.Domain.Interfaces;
+﻿using GroupFinder.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace GroupFinder.Business.Services;
@@ -8,19 +7,19 @@ public class RaceService(DataContext context) : IRaceService
 {
     private readonly DataContext _context = context;
 
-    public async Task<Race> Create(Race race)
+    public async Task<Race> CreateAsync(Race race)
     {
         ArgumentNullException.ThrowIfNull(race);
 
         await _context.AddAsync(race);
         await SaveChangesAsync();
-        
+
         return race;
     }
 
     public IEnumerable<Race> GetAll() => _context.Races.OrderBy(r => r.Name);
 
-    public async Task<Race> GetById(int id)
+    public async Task<Race> GetByIdAsync(int id)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
 

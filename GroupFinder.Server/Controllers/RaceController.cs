@@ -15,26 +15,22 @@ public class RaceController(IRaceService raceService) : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        IEnumerable<Race> result = _raceService.GetAll();
+        IEnumerable<Race> races = _raceService.GetAll();
 
-        if (result == null)
-        {
-            return NotFound();
-        }
+        if (races == null)
+            return NotFound(new { Message = "No races found" });
         else
-            return Ok(result);
+            return Ok(races);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        Race result = await _raceService.GetById(id);
+        Race race = await _raceService.GetByIdAsync(id);
 
-        if (result == null)
-        {
-            return NotFound();
-        }
+        if (race == null)
+            return NotFound(new { Message = $"No race found with id: {id}" });
         else
-            return Ok(result);
+            return Ok(race);
     }
 }

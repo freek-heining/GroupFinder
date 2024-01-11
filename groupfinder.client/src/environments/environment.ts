@@ -9,8 +9,7 @@ export const environment = {
   authApiUrl: '/identity',
   userApiUrl: '/api/user',
   localAccessToken: 'bearerToken',
-  localTokenExpiry: 'tokenExpiry',
-  localRefreshToken: 'refreshToken'
+  localTokenExpiry: 'tokenExpiry'
 };
 
 /*

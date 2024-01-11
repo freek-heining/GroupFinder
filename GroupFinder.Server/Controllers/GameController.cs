@@ -15,23 +15,23 @@ public class GameController(IGameService gameService) : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        IEnumerable<Game> result = _gameService.GetAll();
+        IEnumerable<Game> games = _gameService.GetAll();
 
-        if (result == null)
+        if (games == null)
             return NotFound(new { Message = "No games found"} );
         else
-            return Ok(result);
+            return Ok(games);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        Game result = await _gameService.GetById(id);
+        Game game = await _gameService.GetByIdAsync(id);
 
-        if (result == null)
-            return NotFound(new { Message = $"No game found for id: {id}" });
+        if (game == null)
+            return NotFound(new { Message = $"No game found with id: {id}" });
         else
-            return Ok(result);
+            return Ok(game);
     }
 
     [HttpPost]
@@ -51,7 +51,7 @@ public class GameController(IGameService gameService) : ControllerBase
             };
         }
 
-        Game result = await _gameService.Create(game);
+        Game result = await _gameService.CreateAsync(game);
         return CreatedAtAction(nameof(Create), new { id = result.GameId }, result);
     }
 
@@ -69,18 +69,18 @@ public class GameController(IGameService gameService) : ControllerBase
             };
         }
 
-        Game result = await _gameService.Update(game);
+        Game result = await _gameService.UpdateAsync(game);
         return CreatedAtAction(nameof(Update), new { id = result.GameId }, result);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Delete(int id) // Delete = set boolean only
     {
-        Game result = await _gameService.Delete(id);
+        bool result = await _gameService.DeleteAsync(id);
 
-        if (result == null)
-            return NotFound(new { Message = $"No game found for id: {id}" });
+        if (!result)
+            return Ok(new { Message = $"Game with id: {id} is already deleted" });
         else
-            return Ok(result);
+            return Ok(new { Message = $"Game with id: {id} deleted" });
     }
 }

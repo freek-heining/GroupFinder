@@ -34,7 +34,6 @@ export class LogoutComponent implements OnInit {
       console.log('logging off');
       sessionStorage.removeItem(environment.localAccessToken);
       sessionStorage.removeItem(environment.localTokenExpiry);
-      sessionStorage.removeItem(environment.localRefreshToken);
       this.router.navigate(["/"], { replaceUrl: true });
     }
     else

@@ -27,22 +27,6 @@ export class UserService {
       );
   }
 
-  getSignedInUser(): Observable<IUser> {
-    return this.http.get<IUser>(this.userUrl + '/current')
-      .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
-      );
-  }
-
-  signOutCurrentUser(): Observable<IUser> {
-    return this.http.get<IUser>(this.userUrl + '/signout')
-      .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
-      );
-  }
-
   private handleError(err: HttpErrorResponse) {
     // in a real world app, we may send the server to some remote logging infrastructure
     // instead of just logging it to the console

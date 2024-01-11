@@ -4,10 +4,10 @@ namespace GroupFinder.Domain.Interfaces;
 
 public interface IGameService
 {
-    Task<Game> Create(Game game);
+    Task<Game> CreateAsync(Game game);
     IEnumerable<Game> GetAll();
-    Task<Game> GetById(int id);
-    Task<Game> Update(Game game);
-    Task<Game> Delete(int id);
-    Task SaveChangesAsync();
+    Task<Game> GetByIdAsync(int id);
+    Task<Game> UpdateAsync(Game game);
+    Task<bool> DeleteAsync(int id);
+    Task<int> SaveChangesAsync();
 }

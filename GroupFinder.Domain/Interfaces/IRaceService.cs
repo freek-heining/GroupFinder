@@ -4,8 +4,8 @@ namespace GroupFinder.Domain.Interfaces;
 
 public interface IRaceService
 {
-    Task<Race> Create(Race race);
+    Task<Race> CreateAsync(Race race);
     IEnumerable<Race> GetAll();
-    Task<Race> GetById(int id);
+    Task<Race> GetByIdAsync(int id);
     Task SaveChangesAsync();
 }

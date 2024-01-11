@@ -51,7 +51,7 @@ export class AuthenticateService {
   }
 
   private tryRefreshingBearer(): boolean {
-    const refreshToken: string | null = sessionStorage.getItem(environment.localRefreshToken);
+    const refreshToken: string | null = '1234'; // TODO: service
 
     if (refreshToken) {
       this.http.post<IAuthenticatedResponse>(this.authUrl + '/refresh', refreshToken)
@@ -74,7 +74,6 @@ export class AuthenticateService {
   private setResponse(response: IAuthenticatedResponse) {
     sessionStorage.setItem(environment.localAccessToken, response.accessToken);
     sessionStorage.setItem(environment.localTokenExpiry, this.calculateTokenExpiry(response.expiresIn)); // secs since Unix Epoch
-    sessionStorage.setItem(environment.localRefreshToken, response.refreshToken);
   }
 
   private calculateTokenExpiry(tokenExpiry: string): string {

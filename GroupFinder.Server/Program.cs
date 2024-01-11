@@ -41,8 +41,8 @@ builder.Services.AddAuthorizationBuilder();
 // Dependency injection
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IRaceService, RaceService>();
-builder.Services.AddScoped<IAuthenticateService, AuthenticateService>();
-builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllersWithViews();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
