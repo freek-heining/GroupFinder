@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit {
     // eslint-disable-next-line no-extra-boolean-cast
     if (!window.history.state.local) {
       // This prevents regular links to <app>/authentication/login, [state]='{ local: true } in menu html
-      this.message.next('The login was not initiated from within the page.');
+      this.message.next('The login was not initiated from within the page.'); // TODO: shows after successful login?
       this.invalidLogin = true;
     }
   }

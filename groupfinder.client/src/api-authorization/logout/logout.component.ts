@@ -32,8 +32,8 @@ export class LogoutComponent implements OnInit {
 
     if (isAuthenticated) {
       console.log('logging off');
-      sessionStorage.removeItem(environment.localAccessToken);
-      sessionStorage.removeItem(environment.localTokenExpiry);
+      sessionStorage.removeItem(environment.sessionAccessToken);
+      sessionStorage.removeItem(environment.sessionTokenExpiry);
       this.router.navigate(["/"], { replaceUrl: true });
     }
     else

@@ -6,10 +6,12 @@ export const environment = {
   production: false,
   gameApiUrl: '/api/game',
   raceApiUrl: '/api/race',
-  authApiUrl: '/identity',
   userApiUrl: '/api/user',
-  localAccessToken: 'bearerToken',
-  localTokenExpiry: 'tokenExpiry'
+  tokenApiUrl: '/api/token',
+  authApiUrl: '/identity',
+  localUserId: 'userId',
+  sessionAccessToken: 'bearerToken',
+  sessionTokenExpiry: 'tokenExpiry'
 };
 
 /*

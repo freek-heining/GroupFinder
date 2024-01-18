@@ -27,7 +27,7 @@ public class UserService(UserManager<ApplicationUser> userManager) : IUserServic
         return user;
     }
 
-    public async Task<bool> IsValidUserAsync(string email, string password)
+    public async Task<bool> IsValidUserAsync(string email, string password) // TODO: model
     {
         ApplicationUser? user = await _userManager.FindByEmailAsync(email);
 

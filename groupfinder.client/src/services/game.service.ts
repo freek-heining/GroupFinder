@@ -13,7 +13,7 @@ export class GameService {
 
   constructor(private http: HttpClient) { }
 
-  getGames(): Observable<IGame[]> {
+  getGames$(): Observable<IGame[]> {
     return this.http.get<IGame[]>(this.gameUrl)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
@@ -21,7 +21,7 @@ export class GameService {
     );
   }
 
-  getGame(id: number): Observable<IGame> {
+  getGame$(id: number): Observable<IGame> {
     return this.http.get<IGame>(this.gameUrl + '/' + id)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
@@ -29,7 +29,7 @@ export class GameService {
       );
   }
 
-  createGame(game: IGame): Observable<IGame> {
+  createGame$(game: IGame): Observable<IGame> {
     return this.http.post<IGame>(this.gameUrl, game)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
@@ -37,7 +37,7 @@ export class GameService {
       );
   }
 
-  editGame(game: IGame): Observable<IGame> {
+  updateGame$(game: IGame): Observable<IGame> {
     return this.http.put<IGame>(this.gameUrl, game)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
@@ -45,7 +45,7 @@ export class GameService {
       );
   }
 
-  deleteGame(game: IGame): Observable<IGame> {
+  deleteGame$(game: IGame): Observable<IGame> {
     return this.http.put<IGame>(this.gameUrl + '/' + game.gameId, game)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),

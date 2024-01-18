@@ -1,26 +1,37 @@
-import { Injectable } from "@angular/core";
-import { environment } from "../environments/environment";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { Observable, catchError, tap, throwError } from "rxjs";
-import { IUser } from "../interfaces/IUser";
+import { Injectable } from "@angular/core";
+import { catchError, Observable, tap, throwError } from "rxjs";
+import { environment } from "../environments/environment";
+import { IRefreshModel } from "../interfaces/IRefreshModel";
+import { IRefreshResponse } from "../interfaces/IRefreshResponse";
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
-  private userUrl = environment.userApiUrl;
+
+export class TokenService {
+  private tokenUrl = environment.tokenApiUrl;
+
   constructor(private http: HttpClient) { }
 
-  getUserByEmail$(email: string): Observable<IUser> {
-    return this.http.get<IUser>(this.userUrl + '/' + email)
+  getRefreshToken$(id: string): Observable<IRefreshResponse> {
+    return this.http.get<IRefreshResponse>(this.tokenUrl + '/' + id)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
         catchError(this.handleError)
-    );
+      );
   }
 
-  getUserById$(id: number): Observable<IUser> {
-    return this.http.get<IUser>(this.userUrl + '/id/' + id)
+  setRefreshToken$(refreshInfo: IRefreshModel): Observable<string> {
+    return this.http.post<string>(this.tokenUrl, refreshInfo)
+      .pipe(
+        tap(data => console.log('All', JSON.stringify(data))),
+        catchError(this.handleError)
+      );
+  }
+
+  deleteRefreshToken$(id: string): Observable<string> {
+    return this.http.post<string>(this.tokenUrl + '/', id)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
         catchError(this.handleError)
@@ -43,4 +54,3 @@ export class UserService {
     return throwError(() => errorMessage);
   }
 }
-

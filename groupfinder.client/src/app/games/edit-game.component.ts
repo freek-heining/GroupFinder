@@ -31,7 +31,7 @@ export class EditGameComponent {
 
   ngOnInit(): void {
     console.log("Inside edit ngOnInit!");
-    this.sub = this.raceService.getRaces().subscribe({
+    this.sub = this.raceService.getRaces$().subscribe({
       next: races => this.races = races,
       error: err => this.errorMessage = err
     });

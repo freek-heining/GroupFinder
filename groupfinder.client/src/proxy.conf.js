@@ -4,6 +4,7 @@ const PROXY_CONFIG = [
       "/api/game",
       "/api/race",
       "/api/user",
+      "/api/token",
       "/identity/refresh",
       "/identity/login",
       "/identity/register",

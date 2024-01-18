@@ -1,4 +1,5 @@
 ﻿using GroupFinder.Domain.Interfaces;
+using LookingForGroup.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,13 +20,13 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         if (string.IsNullOrEmpty(refreshToken))
             return NotFound(new { Message = $"No refresh token found for that user" });
         else
-            return Ok(new { RefreshToken = refreshToken});
+            return Ok(new RefreshResponse{ RefreshToken = refreshToken});
     }
 
-    [HttpPost("{id}/{refreshToken}")]
-    public async Task<IActionResult> SetRefreshToken(string id, string refreshToken)
+    [HttpPost]
+    public async Task<IActionResult> SetRefreshToken(RefreshModel refreshInfo)
     {
-        bool result = await _tokenService.SetRefreshTokenAsync(id, refreshToken);
+        bool result = await _tokenService.SetRefreshTokenAsync(refreshInfo);
 
         if (!result)
             return NotFound(new { Message = $"Refresh token already set" });

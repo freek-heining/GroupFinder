@@ -40,7 +40,7 @@ export class CreateGameComponent implements OnInit {
   sub!: Subscription;
 
   ngOnInit(): void {
-    this.sub = this.raceService.getRaces().subscribe({
+    this.sub = this.raceService.getRaces$().subscribe({
       next: races => {
         this.races = races;
       },

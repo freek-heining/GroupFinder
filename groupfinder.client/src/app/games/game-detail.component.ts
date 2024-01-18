@@ -31,7 +31,7 @@ export class GameDetailComponent implements OnInit {
   }
 
   getGameData(id: number) {
-    this.gamesService.getGame(id).subscribe({
+    this.gamesService.getGame$(id).subscribe({
       next: game => this.game = game,
       error: err => this.errorMessage = err
     });
@@ -51,7 +51,7 @@ export class GameDetailComponent implements OnInit {
     dialogRef.afterClosed().pipe(filter(x => !!x)).subscribe( // pipe filter skips the falsy
       async result => {
         game = result,
-        await firstValueFrom(this.gamesService.editGame(game)), // async await promise from observable to make sure data is written before retrieving below
+        await firstValueFrom(this.gamesService.updateGame$(game)), // async await promise from observable to make sure data is written before retrieving below
         this.getGameData(game.gameId)
       }
     );

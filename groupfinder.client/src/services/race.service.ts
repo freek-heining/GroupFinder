@@ -13,7 +13,7 @@ export class RaceService {
 
   constructor(private http: HttpClient) { }
 
-  getRaces(): Observable<IRace[]> {
+  getRaces$(): Observable<IRace[]> {
     return this.http.get<IRace[]>(this.raceUrl)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
@@ -21,7 +21,7 @@ export class RaceService {
       );
   }
 
-  getRace(id: number): Observable<IRace> {
+  getRace$(id: number): Observable<IRace> {
     return this.http.get<IRace>(this.raceUrl + '/' + id)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),

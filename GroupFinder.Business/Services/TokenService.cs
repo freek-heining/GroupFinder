@@ -1,4 +1,5 @@
 ﻿using GroupFinder.Domain.Interfaces;
+using LookingForGroup.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace GroupFinder.Business.Services;
@@ -10,7 +11,7 @@ public class TokenService(DataContext context, UserManager<ApplicationUser> user
 
     public async Task<string> GetRefreshTokenAsync(string id)
     {
-        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(id, nameof(id));
 
         ApplicationUser? user = await _userManager.FindByIdAsync(id);
         ArgumentNullException.ThrowIfNull(user);
@@ -19,16 +20,15 @@ public class TokenService(DataContext context, UserManager<ApplicationUser> user
         return refreshToken!; // Return refresh token, or null if not in db
     }
 
-    public async Task<bool> SetRefreshTokenAsync(string id, string refreshToken)
+    public async Task<bool> SetRefreshTokenAsync(RefreshModel refreshInfo)
     {
-        ArgumentNullException.ThrowIfNull(id);
-        ArgumentNullException.ThrowIfNull(refreshToken);
+        ArgumentNullException.ThrowIfNull(refreshInfo.Id, refreshInfo.RefreshToken);
 
-        ApplicationUser? user = await _userManager.FindByIdAsync(id);
+        ApplicationUser? user = await _userManager.FindByIdAsync(refreshInfo.Id);
         ArgumentNullException.ThrowIfNull(user);
 
         _context.Users.Attach(user); // Unchanged state
-        user.RefreshToken = refreshToken;
+        user.RefreshToken = refreshInfo.RefreshToken;
         
         int entries = await SaveChangesAsync();
         return entries > 0;

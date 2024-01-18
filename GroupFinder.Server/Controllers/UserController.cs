@@ -35,7 +35,7 @@ public class UserController(IUserService userManagementService) : ControllerBase
             return Ok(user);
     }
 
-    [HttpPost]
+    [HttpPost("{email}/{password}")]
     public async Task<IActionResult> IsValidUserAsync(string email, string password)
     {
         bool result = await _userManagementService.IsValidUserAsync(email, password);

@@ -14,7 +14,6 @@ import { IGame } from '../../interfaces/IGame';
   styleUrls: ['./games.component.css']
 })
 export class GamesComponent implements OnInit {
-
   constructor(private gamesService: GameService, public dialog: MatDialog) { }
 
   pageTitle: string = 'Game List';
@@ -67,7 +66,7 @@ export class GamesComponent implements OnInit {
       result => {
         this.game = result;
         this.game.hostPlayerId = "4C0988AC-D95B-40B0-A229-668D7CD9F89C"; // TODO: retrieve id from UserManager
-        this.gamesService.createGame(this.game).subscribe(
+        this.gamesService.createGame$(this.game).subscribe(
           game => this.games.push(game)
         );
 
@@ -85,7 +84,7 @@ export class GamesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(
       result => {
         game = result;
-        this.gamesService.deleteGame(game).subscribe();
+        this.gamesService.deleteGame$(game).subscribe();
 
         console.log(`Deleted game: "${this.game.title}"`);
       }
@@ -93,8 +92,8 @@ export class GamesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.sub = this.gamesService.getGames().subscribe({
-      next: games => {
+    this.sub = this.gamesService.getGames$().subscribe({
+      next: (games: IGame[]) => {
         this.games = games;
         this.filteredGames = this.games;
       },
