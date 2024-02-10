@@ -22,16 +22,16 @@ export class TokenService {
       );
   }
 
-  setRefreshToken$(refreshInfo: IRefreshModel): Observable<string> {
-    return this.http.post<string>(this.tokenUrl, refreshInfo)
+  setRefreshToken$(refreshInfo: IRefreshModel): Observable<boolean> {
+    return this.http.post<boolean>(this.tokenUrl, refreshInfo)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
         catchError(this.handleError)
       );
   }
 
-  deleteRefreshToken$(id: string): Observable<string> {
-    return this.http.post<string>(this.tokenUrl + '/', id)
+  deleteRefreshToken$(id: string): Observable<boolean> {
+    return this.http.post<boolean>(this.tokenUrl + '/', id)
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
         catchError(this.handleError)

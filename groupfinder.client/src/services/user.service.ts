@@ -16,7 +16,7 @@ export class UserService {
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
         catchError(this.handleError)
-    );
+      );
   }
 
   getUserById$(id: number): Observable<IUser> {

@@ -1,6 +1,7 @@
-<p>{{ message | async }}</p>
+<p>TEST</p>
+<p>{{ message$ | async }}</p>
 
-<div *ngIf="!invalidLogin" class="container">
+<div *ngIf="!loggedIn" class="container">
   <h2>Login</h2>
   <form #loginForm="ngForm" (ngSubmit)="login(loginForm)">
     <mat-form-field>

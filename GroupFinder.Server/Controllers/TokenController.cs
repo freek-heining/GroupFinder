@@ -29,9 +29,9 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         bool result = await _tokenService.SetRefreshTokenAsync(refreshInfo);
 
         if (!result)
-            return NotFound(new { Message = $"Refresh token already set" });
+            return NotFound(new { SetRefresh = result });
         else
-            return Ok(new { Message = $"Refresh token set" });
+            return Ok(new { SetRefresh = result });
     }
 
 
@@ -41,8 +41,8 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         bool result = await _tokenService.DeleteRefreshTokenAsync(id);
 
         if (!result)
-            return NotFound(new { Message = $"No refresh token found for that user" });
+            return NotFound(new { DeleteRefresh = result });
         else
-            return Ok(new { Message = $"Refresh token deleted" });
+            return Ok(new { DeleteRefresh = result });
     }
 }

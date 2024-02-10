@@ -18,7 +18,7 @@ export class GameService {
       .pipe(
         tap(data => console.log('All', JSON.stringify(data))),
         catchError(this.handleError)
-    );
+      );
   }
 
   getGame$(id: number): Observable<IGame> {
