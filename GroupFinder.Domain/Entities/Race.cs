@@ -1,12 +1,7 @@
 ﻿namespace GroupFinder.Domain.Entities;
 
-public class Race
+public class Race(string name)
 {
-    public Race(string name)
-    {
-        Name = name;
-    }
-
     /// <summary>
     /// Gets or sets the id for this race.
     /// </summary>
@@ -15,5 +10,5 @@ public class Race
     /// <summary>
     /// Gets or sets the name for this race.
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 }

@@ -43,7 +43,7 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
 
         _context.Entry(game).State = EntityState.Modified; // Otherwise a FK change is not accepted by EF
         _context.Update(game);
-        
+
         await SaveChangesAsync();
 
         return game;
@@ -56,7 +56,7 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
         Game? game = await _context.Games.SingleOrDefaultAsync(g => g.GameId == id);
         ArgumentNullException.ThrowIfNull(game, nameof(game));
 
-        game.Deleted = true;
+            game.Deleted = true;
 
         int entries = await SaveChangesAsync();
         return entries > 0;

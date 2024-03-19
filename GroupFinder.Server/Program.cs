@@ -25,7 +25,7 @@ builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection(key: 
 
 // Options pattern: configurationBinder.Get<T> (to use on this page)
 TokenSettings tokenSettings = builder.Configuration.GetSection(nameof(TokenSettings))
-    .Get<TokenSettings>() ?? throw new ArgumentNullException();
+    .Get<TokenSettings>() ?? throw new InvalidOperationException("No TokenSettings found for " + nameof(TokenSettings));
 
 builder.Services
     .AddAuthentication()

@@ -14,6 +14,7 @@ import { IUser } from "../interfaces/IUser";
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthenticateService implements OnDestroy {
   private authUrl = environment.authApiUrl;
   private sub!: Subscription;
