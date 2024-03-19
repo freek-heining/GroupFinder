@@ -14,7 +14,7 @@ export class GameService {
   constructor(private http: HttpClient) { }
 
   getGames$(): Observable<IGame[]> {
-    return this.http.get<IGame[]>(this.gameUrl + 'd')
+    return this.http.get<IGame[]>(this.gameUrl)
       .pipe(
         tap(games => games.forEach(
           game => console.log('getGames$', JSON.stringify(game.gameId + ': ' + game.title))))
