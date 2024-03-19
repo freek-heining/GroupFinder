@@ -11,21 +11,21 @@ public class TokenService(DataContext context, UserManager<ApplicationUser> user
 
     public async Task<string> GetRefreshTokenAsync(string id)
     {
-        ArgumentNullException.ThrowIfNull(id, nameof(id));
+        ArgumentException.ThrowIfNullOrEmpty(id, nameof(id));
 
         ApplicationUser? user = await _userManager.FindByIdAsync(id);
-        ArgumentNullException.ThrowIfNull(user);
-
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
+        
         string? refreshToken = user.RefreshToken;
         return refreshToken!; // Return refresh token, or null if not in db
     }
 
     public async Task<bool> SetRefreshTokenAsync(RefreshModel refreshInfo)
     {
-        ArgumentNullException.ThrowIfNull(refreshInfo.Id, refreshInfo.RefreshToken);
+        ArgumentException.ThrowIfNullOrEmpty(refreshInfo.Id, refreshInfo.RefreshToken);
 
         ApplicationUser? user = await _userManager.FindByIdAsync(refreshInfo.Id);
-        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
 
         _context.Users.Attach(user); // Unchanged state
         user.RefreshToken = refreshInfo.RefreshToken;
@@ -36,10 +36,10 @@ public class TokenService(DataContext context, UserManager<ApplicationUser> user
 
     public async Task<bool> DeleteRefreshTokenAsync(string id)
     {
-        ArgumentNullException.ThrowIfNull(id);
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
         ApplicationUser? user = await _userManager.FindByIdAsync(id);
-        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
 
         _context.Users.Attach(user); // Unchanged state
         user.RefreshToken = null;

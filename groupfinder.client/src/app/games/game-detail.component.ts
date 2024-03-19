@@ -33,7 +33,7 @@ export class GameDetailComponent implements OnInit {
   getGameData(id: number) {
     this.gamesService.getGame$(id).subscribe({
       next: game => this.game = game,
-      error: err => this.errorMessage = err
+      error: err => this.errorMessage = err // TODO: Check datetime correct??
     });
   }
 

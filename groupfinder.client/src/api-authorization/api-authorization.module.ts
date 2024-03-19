@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
+import { PageNotFoundComponent } from '../app/shared/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -23,10 +24,11 @@ import { FormsModule } from '@angular/forms';
     HttpClientModule,
     RouterModule.forChild(
       [
-        { path: ApplicationPaths.Register, component: LoginComponent },
-        { path: ApplicationPaths.Profile, component: LoginComponent },
-        { path: ApplicationPaths.Login, component: LoginComponent },
-        { path: ApplicationPaths.LogOut, component: LogoutComponent }
+        { path: ApplicationPaths.Register, component: LoginComponent }, // TODO: Register page
+        { path: ApplicationPaths.Profile, component: LoginComponent }, // TODO: Profile page
+        { path: ApplicationPaths.Login, component: LoginComponent }, 
+        { path: ApplicationPaths.LogOut, component: LogoutComponent },
+        { path: ApplicationPaths.Unauthorized, component: PageNotFoundComponent }
       ]
     ),
     MatFormFieldModule,

@@ -1,6 +1,6 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { catchError, Observable, tap, throwError } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { environment } from "../environments/environment";
 import { IRefreshModel } from "../interfaces/IRefreshModel";
 import { IRefreshResponse } from "../interfaces/IRefreshResponse";
@@ -15,42 +15,35 @@ export class TokenService {
   constructor(private http: HttpClient) { }
 
   getRefreshToken$(id: string): Observable<IRefreshResponse> {
+    console.log('Getting refresh token...');
+
     return this.http.get<IRefreshResponse>(this.tokenUrl + '/' + id)
       .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
-      );
+        tap(data => data ?
+          console.log('Got refresh token:', JSON.stringify(data)) :
+          console.log('No refresh token found for id: ' + id))
+    );
   }
 
   setRefreshToken$(refreshInfo: IRefreshModel): Observable<boolean> {
+    console.log('Setting refresh token...');
+
     return this.http.post<boolean>(this.tokenUrl, refreshInfo)
       .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
+        tap(setSuccess => setSuccess ?
+          console.log('Refresh token set:', JSON.stringify(refreshInfo.refreshToken)) :
+          console.log('Setting refresh token failed or already set...'))
       );
   }
 
   deleteRefreshToken$(id: string): Observable<boolean> {
+    console.log('Deleting refresh token...');
+
     return this.http.post<boolean>(this.tokenUrl + '/', id)
       .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
+        tap(data => data ?
+          console.log('Refresh token deleted for id:', JSON.stringify(id)) :
+          console.log('Deleting refresh token failed...'))
       );
-  }
-
-  private handleError(err: HttpErrorResponse) {
-    // in a real world app, we may send the server to some remote logging infrastructure
-    // instead of just logging it to the console
-    let errorMessage = '';
-    if (err.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.
-      errorMessage = `An error occurred: ${err.error.message}`;
-    } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong,
-      errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
-    }
-    console.error(errorMessage);
-    return throwError(() => errorMessage);
   }
 }

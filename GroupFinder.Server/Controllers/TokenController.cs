@@ -29,20 +29,20 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         bool result = await _tokenService.SetRefreshTokenAsync(refreshInfo);
 
         if (!result)
-            return NotFound(new { SetRefresh = result });
+            return NotFound(new { Message = $"Setting refresh token failed or already set" });
         else
-            return Ok(new { SetRefresh = result });
+            return Ok(new { Message = $"Refresh token set", Token = refreshInfo.RefreshToken });
     }
 
 
-    [HttpDelete("{id}")]
+    [HttpPost("{id}")]
     public async Task<IActionResult> DeleteRefreshToken(string id)
     {
         bool result = await _tokenService.DeleteRefreshTokenAsync(id);
 
         if (!result)
-            return NotFound(new { DeleteRefresh = result });
+            return NotFound(new { Message = $"Deleting refresh token failed" });
         else
-            return Ok(new { DeleteRefresh = result });
+            return Ok(new { Message = $"Refresh token deleted" });
     }
 }

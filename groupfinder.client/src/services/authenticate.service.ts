@@ -1,11 +1,15 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { environment } from "../environments/environment";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { Observable, Subscription, catchError, concatMap, map, of, take, tap, throwError } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { EMPTY, Observable, Subscription, concatMap, map, of, take, tap } from "rxjs";
 import { IAuthenticatedResponse } from "../interfaces/IAuthenticatedResponse";
 import { ILoginModel } from "../interfaces/ILoginModel";
 import { TokenService } from "./token.service";
 import { UserService } from "./user.service";
+import { Router } from "@angular/router";
+import { ApplicationPaths } from "../api-authorization/api-authorization.constants";
+import { IRefreshResponse } from "../interfaces/IRefreshResponse";
+import { IUser } from "../interfaces/IUser";
 
 @Injectable({
   providedIn: 'root'
@@ -13,89 +17,106 @@ import { UserService } from "./user.service";
 export class AuthenticateService implements OnDestroy {
   private authUrl = environment.authApiUrl;
   private sub!: Subscription;
+  private isRunning: boolean = false;
 
   constructor(
     private http: HttpClient,
+    private router: Router,
     private tokenService: TokenService,
-    private userService: UserService) { }
+    private userService: UserService) { } // this.handleError = this.handleError.bind(this) -> Otherwise this = undefined
 
-  public login(credentials: ILoginModel): Observable<boolean> {
+  public login(credentials: ILoginModel): Observable<boolean> { // Login means: Getting/Setting bearer, setting user Id and refresh token
     return this.getBearer$(credentials) // get bearer (IAuthenticatedResponse$)
       .pipe( 
-        take(1),    
-        concatMap(bearer => this.userService.getUserByEmail$(credentials.email) // get user (IUser$)
-          .pipe( 
-            tap(() => this.setAuthData(bearer)), // set token and expiry time
-            tap((user) => localStorage.setItem(environment.localUserId, user.id)), // set user id
-            map(user => { return { bearer, user } }), // returns an anonymous object with 2 properties
-            catchError(this.handleError)
+        take(1),
+        concatMap((bearer: IAuthenticatedResponse) => this.userService.getUserByEmail$(credentials.email) // get user for user id later on (IUser$)
+          .pipe(
+            take(1),
+            tap((user: IUser) => {
+              localStorage.setItem(environment.localUserId, user.id); // store current user id for later use
+              this.setAuthDataInSession(bearer); // set token and expiry time in Session storage
+            }), 
+            map(user => { return { bearer, user } }) // returns an anonymous object with 2 properties
           )
         ),
         concatMap(({ bearer, user }) => this.tokenService.setRefreshToken$({ id: user.id, refreshToken: bearer.refreshToken }) // save refresh token to current user in db, {} = JS object destructuring (IRefreshModel)
           .pipe(
-            take(1),
-            tap(setRefreshSuccess => {
-              setRefreshSuccess ? console.log('Login successful') : console.log('Login NOT successful');
-            }),
-            catchError(this.handleError)
+            take(1)
           )
         ) 
       )
   }
 
-  public isAuthenticated$(): Observable<boolean> { // Checks if token in local storage and not expired
-    const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
-    const tokenExpired: boolean = this.tokenExpired();
-    const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionTokenExpiry);
+  public isAuthenticated$(): Observable<boolean> { // Checks if token in local storage and not expired. Used by interceptor, guard and async pipe
+    if (!this.isRunning) { // Flag to limit 1 run max
+      this.isRunning = true;
 
-    if (!accessToken) { // No token stored = Not logged in previously or logged off
-      console.log('user is NOT authenticated');
-      return of(false);
+      const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
+      const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionAccessTokenExpiry);
+      const accessTokenExpired: boolean = this.accessTokenExpired();
+
+      console.log('Checking isAuthenticated$ true/false...');
+
+      if (!accessToken) { // No token stored = Not logged in previously or logged off
+        console.log('No token stored, user is NOT authenticated');
+        this.isRunning = false;
+        return of(false).pipe(take(1));
+      }
+      else if (expiryTimeInSeconds && accessTokenExpired) { // If expiry time AND expired, try refreshing
+        console.log('Token expired, trying refresh...');
+        return this.tryRefreshingBearer$()
+          .pipe(
+            take(1),
+            tap(refreshSuccess => refreshSuccess ? (console.log('Bearer refreshed: user IS authenticated'), this.isRunning = false)
+              : (console.log('Refreshing token failed: user is NOT authenticated'), this.isRunning = false, this.navigateToLogin()))
+          );
+      }
+      else { // If access token AND NOT expired = Logged in normally
+        console.log('Token found: user IS authenticated');
+        this.isRunning = false;
+        return of(true).pipe(take(1));
+      }
     }
-    else if (expiryTimeInSeconds && tokenExpired) { // If expiry time AND expired, try refreshing
-      return this.tryRefreshingBearer$()
-        .pipe(
-          take(1),
-          tap(refreshSuccess => refreshSuccess ? console.log('token refreshed: user IS authenticated') : console.log('token expired: user is NOT authenticated')),
-          catchError(this.handleError)
-        );
-    }
-    else { // If expiry time AND NOT expired = Logged in normally
-      console.log('user IS authenticated');
-      return of(true);
-    }
+    else
+      return EMPTY;
   }
 
-  private tryRefreshingBearer$(): Observable<boolean> {
+  private tryRefreshingBearer$(): Observable<boolean> { 
     const userId: string | null = localStorage.getItem(environment.localUserId);
 
     if (!userId) {
+      console.log('No user id found for refreshing!');
       return of(false);
     }
     else {
+      console.log('Trying to refresh bearer...');
       return this.tokenService.getRefreshToken$(userId) // Get user's refreshtoken from db (IRefreshResponse)
         .pipe(
           take(1),
-          concatMap(refreshToken => this.http.post<IAuthenticatedResponse>(this.authUrl + '/refresh', refreshToken) // Get new bearer (IAuthenticatedResponse)
+          concatMap(refreshResponse => this.refreshBearer$(refreshResponse) // Get new bearer (IAuthenticatedResponse) by using the refresh token (IRefreshResponse)
             .pipe(
-              tap(authResponse => {
-                console.log('Refreshing bearer...', JSON.stringify(authResponse));
-                this.setAuthData(authResponse); // Set new bearer (IAuthenticatedResponse)
-              }),
-              map(authResponse => { return authResponse ? true : false })
+              take(1),
+              tap(authenticatedResponse => {
+                this.setAuthDataInSession(authenticatedResponse); // Set new token and expiry time in Session storage (IAuthenticatedResponse)
+                return authenticatedResponse;
+              })
             )
           ),
-          catchError(this.handleError)
+          concatMap(authenticatedResponse => this.tokenService.setRefreshToken$({ id: userId, refreshToken: authenticatedResponse.refreshToken }) // Set new refresh token (IRefreshModel)
+            .pipe(take(1))
+          )
         );
     }
   }
 
-  private setAuthData(response: IAuthenticatedResponse): void {
+  private setAuthDataInSession(response: IAuthenticatedResponse): void {
+    console.log('Setting auth data...');
     sessionStorage.setItem(environment.sessionAccessToken, response.accessToken);
-    sessionStorage.setItem(environment.sessionTokenExpiry, this.calculateTokenExpiry(response.expiresIn)); // secs since Unix Epoch
+    sessionStorage.setItem(environment.sessionAccessTokenExpiry, this.calculateTokenExpiry(response.expiresIn)); // secs since Unix Epoch
   }
 
   private calculateTokenExpiry(tokenExpiry: string): string { // Convert time in seconds to secs since Unix Epoch
+    console.log('Calculating token expiry...');
     const currentTimeInSeconds: number = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
     const expiryTimeInSeconds: number = parseInt(tokenExpiry) + currentTimeInSeconds; // secs since Unix Epoch + token expiry in secs
     console.log('currentTimeInSeconds: ' + currentTimeInSeconds);
@@ -103,45 +124,46 @@ export class AuthenticateService implements OnDestroy {
     return expiryTimeInSeconds.toString();
   }
 
-  private tokenExpired(): boolean {
-    const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionTokenExpiry);
+  private accessTokenExpired(): boolean {
+    console.log('Checking token expiry...');
+    const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionAccessTokenExpiry);
 
     if (!expiryTimeInSeconds) 
       return true; // No expiryTime stored counts as true/expired
     else {
-      console.log('expiryTimeInSeconds = true');
       const currentTime: number = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
       const expiryTime: number = parseInt(expiryTimeInSeconds);
-      console.log('currentTime: ' + currentTime);
-      console.log('expiryTime: ' + expiryTime);
       return currentTime >= expiryTime;
     }
   }
 
   private getBearer$(credentials: ILoginModel): Observable<IAuthenticatedResponse> { // Performs the API login and retrieves bearer
-    return this.http.post<IAuthenticatedResponse>(this.authUrl + '/login', credentials) /*<IAuthenticatedResponse> = generic parameter*/
+    console.log('Getting bearer...');
+
+    return this.http.post<IAuthenticatedResponse>(this.authUrl + '/login', credentials)
       .pipe(
-        tap(data => console.log('Bearer', JSON.stringify(data))),
-        catchError(this.handleError)
+        tap(authenticatedResponse => authenticatedResponse ? console.log('Got bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to get bearer...'))
       );
   }
 
-  private handleError(err: HttpErrorResponse) {
-    // in a real world app, we may send the server to some remote logging infrastructure
-    // instead of just logging it to the console
-    let errorMessage = '';
-    if (err.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.
-      errorMessage = `An error occurred: ${err.error.message}`;
-    } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong,
-      errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
-    }
-    console.error(errorMessage);
-    return throwError(() => errorMessage);
+  private refreshBearer$(refreshResponse: IRefreshResponse): Observable<IAuthenticatedResponse> {
+    console.log('Refreshing bearer...');
+
+    return this.http.post<IAuthenticatedResponse>(this.authUrl + '/refresh', refreshResponse)
+      .pipe(
+        tap(authenticatedResponse => authenticatedResponse ? console.log('Got refreshed bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to refresh bearer...'))
+      );
+  }
+
+  private navigateToLogin(): void {
+    console.log('Navigating back to login...')
+    this.router.navigateByUrl(ApplicationPaths.Login, { state: { local: true } })
+      .then(nav => {
+        console.log(nav); // true if navigation is successful
+      }, err => {
+        console.error(err) // when there's an error
+      });
   }
 
   ngOnDestroy() { this.sub.unsubscribe }
 }
-

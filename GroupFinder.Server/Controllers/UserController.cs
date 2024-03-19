@@ -1,7 +1,6 @@
 ﻿using GroupFinder.Domain.Identity;
 using GroupFinder.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LookingForGroup.AngularApp.Controllers;
@@ -33,16 +32,5 @@ public class UserController(IUserService userManagementService) : ControllerBase
             return NotFound(new { Message = $"No user found with id: {id}" });
         else
             return Ok(user);
-    }
-
-    [HttpPost("{email}/{password}")]
-    public async Task<IActionResult> IsValidUserAsync(string email, string password)
-    {
-        bool result = await _userManagementService.IsValidUserAsync(email, password);
-
-        if (!result)
-            return NotFound(new { Message = $"Invalid user" });
-        else
-            return Ok(new { Message = $"Valid user" });
     }
 }

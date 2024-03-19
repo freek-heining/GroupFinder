@@ -15,7 +15,7 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
             throw new ArgumentNullException(nameof(game));
 
         ApplicationUser? user = await _userManager.FindByIdAsync(game.HostPlayerId);
-        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
 
         game.HostPlayer = user;
 
@@ -28,18 +28,18 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
 
     public async Task<Game> GetByIdAsync(int id)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id, nameof(id));
 
         Game? foundGame = await _context.Games.SingleOrDefaultAsync(g => g.GameId == id);
 
-        ArgumentNullException.ThrowIfNull(foundGame);
+        ArgumentNullException.ThrowIfNull(foundGame, nameof(foundGame));
 
         return foundGame;
     }
 
     public async Task<Game> UpdateAsync(Game game)
     {
-        ArgumentNullException.ThrowIfNull(game);
+        ArgumentNullException.ThrowIfNull(game, nameof(game));
 
         _context.Entry(game).State = EntityState.Modified; // Otherwise a FK change is not accepted by EF
         _context.Update(game);
@@ -51,10 +51,10 @@ public class GameService(DataContext context, UserManager<ApplicationUser> userM
 
     public async Task<bool> DeleteAsync(int id)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id, nameof(id));
 
         Game? game = await _context.Games.SingleOrDefaultAsync(g => g.GameId == id);
-        ArgumentNullException.ThrowIfNull(game);
+        ArgumentNullException.ThrowIfNull(game, nameof(game));
 
         game.Deleted = true;
 

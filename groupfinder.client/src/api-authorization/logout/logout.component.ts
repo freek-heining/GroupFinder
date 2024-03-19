@@ -3,6 +3,7 @@ import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthenticateService } from '../../services/authenticate.service';
 import { environment } from '../../environments/environment';
+import { TokenService } from '../../services/token.service';
 
 @Component({
   selector: 'app-logout',
@@ -10,11 +11,15 @@ import { environment } from '../../environments/environment';
   styleUrls: ['./logout.component.css']
 })
 
+// This component handles the logout process.
+// By navigating to it with [state: local] in the url, session storage and refresh token of current user will be cleared.
+
 export class LogoutComponent implements OnInit {
   public message = new BehaviorSubject<string | null>(null);
 
   constructor(
     private authenticateService: AuthenticateService,
+    private tokenService: TokenService,
     private router: Router) { }
 
   async ngOnInit() {
@@ -33,7 +38,8 @@ export class LogoutComponent implements OnInit {
     if (isAuthenticated) {
       console.log('logging off');
       sessionStorage.removeItem(environment.sessionAccessToken);
-      sessionStorage.removeItem(environment.sessionTokenExpiry);
+      sessionStorage.removeItem(environment.sessionAccessTokenExpiry);
+      this.tokenService.deleteRefreshToken$(environment.localUserId);
       this.router.navigate(["/"], { replaceUrl: true });
     }
     else

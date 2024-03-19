@@ -19,5 +19,4 @@ public class ApplicationUser : IdentityUser
     /// </summary>
     public string? HomeTown { get; set; }
     public string? RefreshToken { get; set; }
-    public DateTime RefreshTokenExpiryTime { get; set; }
 }

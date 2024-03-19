@@ -1,6 +1,6 @@
-import { AfterContentChecked, Component, OnInit } from '@angular/core';
+import { AfterContentChecked, Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthenticateService } from '../../services/authenticate.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Component({
@@ -8,8 +8,10 @@ import { Router } from '@angular/router';
   templateUrl: './login-menu.component.html',
   styleUrls: ['./login-menu.component.css']
 })
-export class LoginMenuComponent implements OnInit, AfterContentChecked {
+export class LoginMenuComponent implements OnInit, AfterContentChecked, OnDestroy {
+  private sub?: Subscription | undefined;
   public isUserAuthenticated$?: Observable<boolean>; // Used with async pipe in template
+  public isUserAuthenticated?: boolean; // Used with async pipe in template
   public userName?: string;
   public returnUrl?: string;
 
@@ -18,13 +20,25 @@ export class LoginMenuComponent implements OnInit, AfterContentChecked {
     private router: Router) { }
 
   ngOnInit() {
-    console.log("login-menu!");
+    console.log("Inside menu ngOnInit!");
+    this.isUserAuthenticated$ = this.authenticateService.isAuthenticated$();
   }
 
   ngAfterContentChecked() {
-    console.log('Inside ngAfterContentChecked!')
-    this.isUserAuthenticated$ = this.authenticateService.isAuthenticated$();
+    //console.log('Inside menu ngAfterContentChecked!')
+    //this.isUserAuthenticated$ = this.authenticateService.isAuthenticated$();
     this.returnUrl = this.router.routerState.snapshot.url;
-    console.log('returnUrl = ' + this.returnUrl);
+    //console.log('returnUrl = ' + this.returnUrl);
+  }
+
+  IsAuthenticated() {
+    this.sub = this.authenticateService.isAuthenticated$().subscribe(
+      result => this.isUserAuthenticated = result 
+    );
+  }
+
+  ngOnDestroy() {
+    if (this.sub)
+      this.sub.unsubscribe
   }
 }

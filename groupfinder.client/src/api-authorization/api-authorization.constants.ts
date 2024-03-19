@@ -19,6 +19,7 @@ let applicationPaths: ApplicationPathsType = {
   Register: `authentication/${LoginActions.Register}`,
   Profile: `authentication/${LoginActions.Profile}`,
   LogOut: `authentication/${LogoutActions.Logout}`,
+  Unauthorized: 'unauthorized',
   IdentityRegisterPath: `identity/${LoginActions.Register}`,
   IdentityLoginPath: `identity/${LoginActions.Login}`,
   IdentityManagePath: 'identity/manage/info'
@@ -34,6 +35,7 @@ interface ApplicationPathsType {
   readonly Register: string;
   readonly Profile: string;
   readonly LogOut: string;
+  readonly Unauthorized: string;
   readonly IdentityRegisterPath: string;
   readonly IdentityLoginPath: string;
   readonly IdentityManagePath: string;

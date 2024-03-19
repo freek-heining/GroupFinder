@@ -26,6 +26,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthInterceptor } from '../api-authorization/auth.interceptor';
+import { ErrorInterceptor } from '../api-authorization/error.interceptor';
 import { AuthGuard } from '../api-authorization/auth.guard';
 import { AboutComponent } from './about/about.component';
 
@@ -67,7 +68,8 @@ import { AboutComponent } from './about/about.component';
     MatCheckboxModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

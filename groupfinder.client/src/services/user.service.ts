@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { Observable, catchError, tap, throwError } from "rxjs";
+import { HttpClient } from "@angular/common/http";
+import { Observable, map, tap } from "rxjs";
 import { IUser } from "../interfaces/IUser";
 
 @Injectable({
@@ -14,33 +14,29 @@ export class UserService {
   getUserByEmail$(email: string): Observable<IUser> {
     return this.http.get<IUser>(this.userUrl + '/' + email)
       .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
+        map(user => ({ // mapping to clean up User entity from backend
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          homeTown: user.homeTown,
+          refreshToken: user.refreshToken
+        })),
+        tap(user => console.log('getUserByEmail$', JSON.stringify(user)))
       );
   }
 
   getUserById$(id: number): Observable<IUser> {
     return this.http.get<IUser>(this.userUrl + '/id/' + id)
       .pipe(
-        tap(data => console.log('All', JSON.stringify(data))),
-        catchError(this.handleError)
+        map(user => ({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          homeTown: user.homeTown,
+          refreshToken: user.refreshToken
+        })),
+        tap(user => console.log('getUserById$', JSON.stringify(user)))
       );
-  }
-
-  private handleError(err: HttpErrorResponse) {
-    // in a real world app, we may send the server to some remote logging infrastructure
-    // instead of just logging it to the console
-    let errorMessage = '';
-    if (err.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.
-      errorMessage = `An error occurred: ${err.error.message}`;
-    } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong,
-      errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
-    }
-    console.error(errorMessage);
-    return throwError(() => errorMessage);
   }
 }
 

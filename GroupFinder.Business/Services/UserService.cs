@@ -12,7 +12,7 @@ public class UserService(UserManager<ApplicationUser> userManager) : IUserServic
         ArgumentException.ThrowIfNullOrEmpty(email, nameof(email));
 
         ApplicationUser? user = await _userManager.FindByNameAsync(email);
-        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
 
         return user;
     }
@@ -27,7 +27,7 @@ public class UserService(UserManager<ApplicationUser> userManager) : IUserServic
         return user;
     }
 
-    public async Task<bool> IsValidUserAsync(string email, string password) // TODO: model
+    public async Task<bool> IsValidUserAsync(string email, string password) // TODO: unused, remove?
     {
         ApplicationUser? user = await _userManager.FindByEmailAsync(email);
 
