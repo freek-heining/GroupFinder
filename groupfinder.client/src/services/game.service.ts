@@ -9,12 +9,10 @@ import { IGame } from "../interfaces/IGame";
 })
 
 export class GameService {
-  private gameUrl = environment.gameApiUrl;
-
   constructor(private http: HttpClient) { }
 
   getGames$(): Observable<IGame[]> {
-    return this.http.get<IGame[]>(this.gameUrl)
+    return this.http.get<IGame[]>(environment.gameApiUrl)
       .pipe(
         tap(games => games.forEach(
           game => console.log('getGames$', JSON.stringify(game.gameId + ': ' + game.title))))
@@ -22,28 +20,28 @@ export class GameService {
   }
 
   getGame$(id: number): Observable<IGame> {
-    return this.http.get<IGame>(this.gameUrl + '/' + id)
+    return this.http.get<IGame>(environment.gameApiUrl + '/' + id)
       .pipe(
         tap(game => console.log('getGame$', JSON.stringify(game.gameId + ': ' + game.title)))
       );
   }
 
   createGame$(game: IGame): Observable<IGame> {
-    return this.http.post<IGame>(this.gameUrl, game)
+    return this.http.post<IGame>(environment.gameApiUrl, game)
       .pipe(
         tap(game => console.log('createGame$', JSON.stringify(game.gameId + ': ' + game.title)))
       );
   }
 
   updateGame$(game: IGame): Observable<IGame> {
-    return this.http.put<IGame>(this.gameUrl, game)
+    return this.http.put<IGame>(environment.gameApiUrl, game)
       .pipe(
         tap(game => console.log('updateGame$', JSON.stringify(game.gameId + ': ' + game.title)))
       );
   }
 
   deleteGame$(game: IGame): Observable<IGame> {
-    return this.http.put<IGame>(this.gameUrl + '/' + game.gameId, game)
+    return this.http.put<IGame>(environment.gameApiUrl + '/' + game.gameId, game)
       .pipe(
         tap(game => console.log('deleteGame$', JSON.stringify(game.gameId + ': ' + game.title)))
       );

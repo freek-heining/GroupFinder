@@ -3,15 +3,29 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+  // API paths
   production: false,
-  gameApiUrl:               '/api/game',
-  raceApiUrl:               '/api/race',
-  userApiUrl:               '/api/user',
-  tokenApiUrl:              '/api/token',
-  authApiUrl:               '/identity',
-  localUserId:              'userId',
-  sessionAccessToken:       'accessToken',
-  sessionAccessTokenExpiry: 'accessTokenExpiry'
+  gameApiUrl:                     '/api/game',
+  raceApiUrl:                     '/api/race',
+  userApiUrl:                     '/api/user',
+  userByIdApiUrl:                 '/api/user/id/',
+  tokenApiUrl:                    '/api/token',
+  loginApiUrl:                    '/identity/login',
+  registerApiUrl:                 '/identity/register',
+  refreshApiUrl:                  '/identity/refresh',
+  confirmEmailApiUrl:             '/identity/confirmEmail',
+  resendConfirmationApiUrl:       '/identity/resendConfirmationEmail',
+  forgotPasswordApiUrl:           '/identity/forgotPassword',
+  resetPasswordApiUrl:            '/identity/resetPassword',
+
+  // GET: Gets email address and email confirmation status of the logged-in user.
+  // POST: Updates the email address and password of the logged-in user. Send NewEmail, NewPassword, and OldPassword in the request body
+  manageInfoApiUrl:               '/identity/manage/info', 
+
+  // Local & session storage paths
+  localUserId:                'userId',
+  sessionAccessToken:         'accessToken',
+  sessionAccessTokenExpiry:   'accessTokenExpiry'
 };
 
 /*

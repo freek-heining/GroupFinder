@@ -1,7 +1,10 @@
 export interface IUser {
-  id: string,
+  id: string | undefined,
   firstName: string,
   lastName: string,
-  homeTown: string,
-  refreshToken: string
+  hometown: string,
+  email: string,
+  biography: string,
+  password: string,
+  refreshToken: string | undefined
 }

@@ -10,21 +10,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PageNotFoundComponent } from '../app/shared/page-not-found.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
     LoginMenuComponent,
     LoginComponent,
-    LogoutComponent
+    LogoutComponent,
+    RegisterComponent
   ],
   imports: [
     CommonModule,
     HttpClientModule,
     RouterModule.forChild(
       [
-        { path: ApplicationPaths.Register, component: LoginComponent }, // TODO: Register page
+        { path: ApplicationPaths.Register, component: RegisterComponent },
         { path: ApplicationPaths.Profile, component: LoginComponent }, // TODO: Profile page
         { path: ApplicationPaths.Login, component: LoginComponent }, 
         { path: ApplicationPaths.LogOut, component: LogoutComponent },
@@ -35,7 +37,8 @@ import { PageNotFoundComponent } from '../app/shared/page-not-found.component';
     MatIconModule,
     MatInputModule,
     MatButtonModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   exports: [LoginMenuComponent, LoginComponent, LogoutComponent]
 })

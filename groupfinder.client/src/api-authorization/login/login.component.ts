@@ -25,7 +25,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authenticateService: AuthenticateService) { }
 
-  async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> { // TODO: Why async promise?
     // eslint-disable-next-line no-extra-boolean-cast
     if (!window.history.state.local) {
       // This prevents regular links to <app>/authentication/login, [state]='{ local: true } in login-menu html

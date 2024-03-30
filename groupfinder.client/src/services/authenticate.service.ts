@@ -8,15 +8,14 @@ import { TokenService } from "./token.service";
 import { UserService } from "./user.service";
 import { Router } from "@angular/router";
 import { ApplicationPaths } from "../api-authorization/api-authorization.constants";
-import { IRefreshResponse } from "../interfaces/IRefreshResponse";
 import { IUser } from "../interfaces/IUser";
+import { IRefreshModel } from "../interfaces/IRefreshModel";
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class AuthenticateService implements OnDestroy {
-  private authUrl = environment.authApiUrl;
   private sub!: Subscription;
   private isRunning: boolean = false;
 
@@ -30,17 +29,17 @@ export class AuthenticateService implements OnDestroy {
     return this.getBearer$(credentials) // get bearer (IAuthenticatedResponse$)
       .pipe( 
         take(1),
-        concatMap((bearer: IAuthenticatedResponse) => this.userService.getUserByEmail$(credentials.email) // get user for user id later on (IUser$)
+        tap(authenticatedResponse => this.setAuthDataInSession(authenticatedResponse)), // Set token and expiry time in Session storage
+        concatMap((bearer: IAuthenticatedResponse) => this.userService.getUserByEmail$(credentials.email) // get current user for user's id later on (IUser$)
           .pipe(
             take(1),
             tap((user: IUser) => {
-              localStorage.setItem(environment.localUserId, user.id); // store current user id for later use
-              this.setAuthDataInSession(bearer); // set token and expiry time in Session storage
+              localStorage.setItem(environment.localUserId, user.id!); // store current user id for later use
             }), 
             map(user => { return { bearer, user } }) // returns an anonymous object with 2 properties
           )
         ),
-        concatMap(({ bearer, user }) => this.tokenService.setRefreshToken$({ id: user.id, refreshToken: bearer.refreshToken }) // save refresh token to current user in db, {} = JS object destructuring (IRefreshModel)
+        concatMap(({ bearer, user }) => this.tokenService.setRefreshToken$({ id: user.id!, refreshToken: bearer.refreshToken }) // save refresh token to current user in db, {} = JS object destructuring (IRefreshModel)
           .pipe(
             take(1)
           )
@@ -91,16 +90,13 @@ export class AuthenticateService implements OnDestroy {
     }
     else {
       console.log('Trying to refresh bearer...');
-      return this.tokenService.getRefreshToken$(userId) // Get user's refreshtoken from db (IRefreshResponse)
+      return this.tokenService.getRefreshToken$(userId) // Get user's refreshtoken from db (IRefreshModel)
         .pipe(
           take(1),
-          concatMap(refreshResponse => this.refreshBearer$(refreshResponse) // Get new bearer (IAuthenticatedResponse) by using the refresh token (IRefreshResponse)
+          concatMap(refreshInfo => this.refreshBearer$(refreshInfo) // Get new bearer (IAuthenticatedResponse) by using the refresh token (IRefreshModel)
             .pipe(
               take(1),
-              tap(authenticatedResponse => {
-                this.setAuthDataInSession(authenticatedResponse); // Set new token and expiry time in Session storage (IAuthenticatedResponse)
-                return authenticatedResponse;
-              })
+              tap(authenticatedResponse => this.setAuthDataInSession(authenticatedResponse)) // Set new token and expiry time in Session storage (IAuthenticatedResponse)
             )
           ),
           concatMap(authenticatedResponse => this.tokenService.setRefreshToken$({ id: userId, refreshToken: authenticatedResponse.refreshToken }) // Set new refresh token (IRefreshModel)
@@ -141,16 +137,16 @@ export class AuthenticateService implements OnDestroy {
   private getBearer$(credentials: ILoginModel): Observable<IAuthenticatedResponse> { // Performs the API login and retrieves bearer
     console.log('Getting bearer...');
 
-    return this.http.post<IAuthenticatedResponse>(this.authUrl + '/login', credentials)
+    return this.http.post<IAuthenticatedResponse>(environment.loginApiUrl, credentials)
       .pipe(
         tap(authenticatedResponse => authenticatedResponse ? console.log('Got bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to get bearer...'))
       );
   }
 
-  private refreshBearer$(refreshResponse: IRefreshResponse): Observable<IAuthenticatedResponse> {
+  private refreshBearer$(refreshInfo: IRefreshModel): Observable<IAuthenticatedResponse> {
     console.log('Refreshing bearer...');
 
-    return this.http.post<IAuthenticatedResponse>(this.authUrl + '/refresh', refreshResponse)
+    return this.http.post<IAuthenticatedResponse>(environment.refreshApiUrl, refreshInfo)
       .pipe(
         tap(authenticatedResponse => authenticatedResponse ? console.log('Got refreshed bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to refresh bearer...'))
       );

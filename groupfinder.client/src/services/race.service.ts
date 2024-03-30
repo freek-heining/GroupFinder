@@ -9,12 +9,10 @@ import { IRace } from "../interfaces/IRace";
 })
 
 export class RaceService {
-  private raceUrl = environment.raceApiUrl;
-
   constructor(private http: HttpClient) { }
 
   getRaces$(): Observable<IRace[]> {
-    return this.http.get<IRace[]>(this.raceUrl)
+    return this.http.get<IRace[]>(environment.raceApiUrl)
       .pipe(
         tap(races => races.forEach(race => {
           console.log('getRaces$', JSON.stringify(race.raceId + ': ' + race.name))
@@ -23,7 +21,7 @@ export class RaceService {
   }
 
   getRace$(id: number): Observable<IRace> {
-    return this.http.get<IRace>(this.raceUrl + '/' + id)
+    return this.http.get<IRace>(environment.raceApiUrl + '/' + id)
       .pipe(
         tap(race => console.log('getRace$', JSON.stringify(race.raceId + ': ' + race.name)))
       );

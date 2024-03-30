@@ -1,7 +1,7 @@
 <div *ngIf='game'>
   <h2>{{pageTitle}}</h2>
   <p>Title: {{game.title}}</p>
-  <p>Date: {{game.date | date}}</p>
+  <p>Date: {{game.date | date}}</p> <!--DatePipe: Formats a date value according to locale rules.-->
   <p>Location: {{game.location}}</p>
   <p>Host: {{game.hostPlayer.firstName}} {{game.hostPlayer.lastName}}</p>
   <p>Host Race: {{game.hostPlayerRace.name}}</p>

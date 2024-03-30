@@ -3,21 +3,18 @@ import { Injectable } from "@angular/core";
 import { Observable, tap } from "rxjs";
 import { environment } from "../environments/environment";
 import { IRefreshModel } from "../interfaces/IRefreshModel";
-import { IRefreshResponse } from "../interfaces/IRefreshResponse";
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class TokenService {
-  private tokenUrl = environment.tokenApiUrl;
-
   constructor(private http: HttpClient) { }
 
-  getRefreshToken$(id: string): Observable<IRefreshResponse> {
+  getRefreshToken$(id: string): Observable<IRefreshModel> {
     console.log('Getting refresh token...');
 
-    return this.http.get<IRefreshResponse>(this.tokenUrl + '/' + id)
+    return this.http.get<IRefreshModel>(environment.tokenApiUrl + '/' + id)
       .pipe(
         tap(data => data ?
           console.log('Got refresh token:', JSON.stringify(data)) :
@@ -28,7 +25,7 @@ export class TokenService {
   setRefreshToken$(refreshInfo: IRefreshModel): Observable<boolean> {
     console.log('Setting refresh token...');
 
-    return this.http.post<boolean>(this.tokenUrl, refreshInfo)
+    return this.http.post<boolean>(environment.tokenApiUrl, refreshInfo)
       .pipe(
         tap(setSuccess => setSuccess ?
           console.log('Refresh token set:', JSON.stringify(refreshInfo.refreshToken)) :
@@ -39,7 +36,7 @@ export class TokenService {
   deleteRefreshToken$(id: string): Observable<boolean> {
     console.log('Deleting refresh token...');
 
-    return this.http.post<boolean>(this.tokenUrl + '/', id)
+    return this.http.post<boolean>(environment.tokenApiUrl + '/', id)
       .pipe(
         tap(data => data ?
           console.log('Refresh token deleted for id:', JSON.stringify(id)) :

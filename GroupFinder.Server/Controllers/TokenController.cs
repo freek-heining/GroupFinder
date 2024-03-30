@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LookingForGroup.AngularApp.Controllers;
 
-[AllowAnonymous]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TokenController(ITokenService tokenService) : ControllerBase
 {
     private readonly ITokenService _tokenService = tokenService;
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRefreshToken(string id)
     {
@@ -20,7 +21,7 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         if (string.IsNullOrEmpty(refreshToken))
             return NotFound(new { Message = $"No refresh token found for that user" });
         else
-            return Ok(new RefreshResponse{ RefreshToken = refreshToken});
+            return Ok(new RefreshModel { Id = id, RefreshToken = refreshToken});
     }
 
     [HttpPost]

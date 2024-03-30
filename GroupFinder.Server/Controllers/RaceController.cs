@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LookingForGroup.AngularApp.Controllers;
 
-//[Authorize(Policy = "MemberOnly")]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class RaceController(IRaceService raceService) : ControllerBase

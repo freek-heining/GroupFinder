@@ -7,6 +7,7 @@ import { DeleteGameComponent } from './delete-game.component';
 import { IRace } from '../../interfaces/IRace';
 import { IUser } from '../../interfaces/IUser';
 import { IGame } from '../../interfaces/IGame';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-games',
@@ -18,6 +19,8 @@ export class GamesComponent implements OnInit {
 
   pageTitle: string = 'Game List';
   errorMessage: string = '';
+
+  private userId!: string;
   lowValue!: number;
   highValue!: number;
   // TODO: Add loading spinner
@@ -65,7 +68,7 @@ export class GamesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(
       result => {
         this.game = result;
-        this.game.hostPlayerId = "4C0988AC-D95B-40B0-A229-668D7CD9F89C"; // TODO: retrieve id from UserManager
+        this.game.hostPlayerId = this.userId;
         this.gamesService.createGame$(this.game).subscribe(
           game => this.games.push(game)
         );
@@ -92,6 +95,13 @@ export class GamesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const userId = localStorage.getItem(environment.localUserId);
+    if (userId) {
+      this.userId = userId
+    } else {
+      throw new Error('No userId found!');
+    }
+
     this.sub = this.gamesService.getGames$().subscribe({
       next: (games: IGame[]) => {
         this.games = games;
