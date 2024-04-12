@@ -1,15 +1,12 @@
 import { Injectable, OnDestroy } from "@angular/core";
 import { environment } from "../environments/environment";
 import { HttpClient } from "@angular/common/http";
-import { EMPTY, Observable, Subscription, concatMap, map, of, take, tap } from "rxjs";
+import { Observable, Subscription, concatMap, map, of, switchMap, take, tap, throwError } from "rxjs";
 import { IAuthenticatedResponse } from "../interfaces/IAuthenticatedResponse";
 import { ILoginModel } from "../interfaces/ILoginModel";
 import { TokenService } from "./token.service";
 import { UserService } from "./user.service";
-import { Router } from "@angular/router";
-import { ApplicationPaths } from "../api-authorization/api-authorization.constants";
 import { IUser } from "../interfaces/IUser";
-import { IRefreshModel } from "../interfaces/IRefreshModel";
 
 @Injectable({
   providedIn: 'root'
@@ -17,24 +14,25 @@ import { IRefreshModel } from "../interfaces/IRefreshModel";
 
 export class AuthenticateService implements OnDestroy {
   private sub!: Subscription;
-  private isRunning: boolean = false;
-
   constructor(
-    private http: HttpClient,
-    private router: Router,
     private tokenService: TokenService,
-    private userService: UserService) { } // this.handleError = this.handleError.bind(this) -> Otherwise this = undefined
+    private userService: UserService,
+    private http: HttpClient) { }
 
   public login(credentials: ILoginModel): Observable<boolean> { // Login means: Getting/Setting bearer, setting user Id and refresh token
     return this.getBearer$(credentials) // get bearer (IAuthenticatedResponse$)
-      .pipe( 
+      .pipe(
         take(1),
         tap(authenticatedResponse => this.setAuthDataInSession(authenticatedResponse)), // Set token and expiry time in Session storage
         concatMap((bearer: IAuthenticatedResponse) => this.userService.getUserByEmail$(credentials.email) // get current user for user's id later on (IUser$)
           .pipe(
             take(1),
             tap((user: IUser) => {
-              localStorage.setItem(environment.localUserId, user.id!); // store current user id for later use
+              if (!user.id) {
+                throwError(() => 'No userId found!');
+              }
+              else
+                localStorage.setItem(environment.localUserId, user.id); // store current user id for later use
             }), 
             map(user => { return { bearer, user } }) // returns an anonymous object with 2 properties
           )
@@ -48,9 +46,6 @@ export class AuthenticateService implements OnDestroy {
   }
 
   public isAuthenticated$(): Observable<boolean> { // Checks if token in local storage and not expired. Used by interceptor, guard and async pipe
-    if (!this.isRunning) { // Flag to limit 1 run max
-      this.isRunning = true;
-
       const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
       const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionAccessTokenExpiry);
       const accessTokenExpired: boolean = this.accessTokenExpired();
@@ -58,34 +53,25 @@ export class AuthenticateService implements OnDestroy {
       console.log('Checking isAuthenticated$ true/false...');
 
       if (!accessToken) { // No token stored = Not logged in previously or logged off
-        console.log('No token stored, user is NOT authenticated');
-        this.isRunning = false;
+        console.log('Token not found');
         return of(false).pipe(take(1));
       }
-      else if (expiryTimeInSeconds && accessTokenExpired) { // If expiry time AND expired, try refreshing
-        console.log('Token expired, trying refresh...');
-        return this.tryRefreshingBearer$()
-          .pipe(
-            take(1),
-            tap(refreshSuccess => refreshSuccess ? (console.log('Bearer refreshed: user IS authenticated'), this.isRunning = false)
-              : (console.log('Refreshing token failed: user is NOT authenticated'), this.isRunning = false, this.navigateToLogin()))
-          );
+      else if (expiryTimeInSeconds && accessTokenExpired) { // If expiry time AND expired
+        console.log('Token expired');
+        return of(false).pipe(take(1));
       }
       else { // If access token AND NOT expired = Logged in normally
-        console.log('Token found: user IS authenticated');
-        this.isRunning = false;
+        console.log('Token ok');
         return of(true).pipe(take(1));
       }
-    }
-    else
-      return EMPTY;
   }
 
-  private tryRefreshingBearer$(): Observable<boolean> { 
+  // TODO: encrypt/decrypt refresh tokens in/from DB
+  public refreshBearer$(): Observable<boolean> { 
     const userId: string | null = localStorage.getItem(environment.localUserId);
 
     if (!userId) {
-      console.log('No user id found for refreshing!');
+      console.error('No user id found for refreshing!');
       return of(false);
     }
     else {
@@ -93,13 +79,16 @@ export class AuthenticateService implements OnDestroy {
       return this.tokenService.getRefreshToken$(userId) // Get user's refreshtoken from db (IRefreshModel)
         .pipe(
           take(1),
-          concatMap(refreshInfo => this.refreshBearer$(refreshInfo) // Get new bearer (IAuthenticatedResponse) by using the refresh token (IRefreshModel)
+          switchMap(refreshInfo => this.http.post<IAuthenticatedResponse>(environment.refreshApiUrl, refreshInfo) // Get new bearer (IAuthenticatedResponse) by using the refresh model (IRefreshModel)
             .pipe(
               take(1),
-              tap(authenticatedResponse => this.setAuthDataInSession(authenticatedResponse)) // Set new token and expiry time in Session storage (IAuthenticatedResponse)
+              tap(authenticatedResponse => {
+                this.setAuthDataInSession(authenticatedResponse); // Set new token + expiry time in Session storage (IAuthenticatedResponse)
+                console.log('Got refreshed bearer: ', JSON.stringify(authenticatedResponse));
+              }) 
             )
           ),
-          concatMap(authenticatedResponse => this.tokenService.setRefreshToken$({ id: userId, refreshToken: authenticatedResponse.refreshToken }) // Set new refresh token (IRefreshModel)
+          switchMap(authenticatedResponse => this.tokenService.setRefreshToken$({ id: userId, refreshToken: authenticatedResponse.refreshToken }) // Set new refresh token in db and return bool (IRefreshModel)
             .pipe(take(1))
           )
         );
@@ -141,25 +130,6 @@ export class AuthenticateService implements OnDestroy {
       .pipe(
         tap(authenticatedResponse => authenticatedResponse ? console.log('Got bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to get bearer...'))
       );
-  }
-
-  private refreshBearer$(refreshInfo: IRefreshModel): Observable<IAuthenticatedResponse> {
-    console.log('Refreshing bearer...');
-
-    return this.http.post<IAuthenticatedResponse>(environment.refreshApiUrl, refreshInfo)
-      .pipe(
-        tap(authenticatedResponse => authenticatedResponse ? console.log('Got refreshed bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to refresh bearer...'))
-      );
-  }
-
-  private navigateToLogin(): void {
-    console.log('Navigating back to login...')
-    this.router.navigateByUrl(ApplicationPaths.Login, { state: { local: true } })
-      .then(nav => {
-        console.log(nav); // true if navigation is successful
-      }, err => {
-        console.error(err) // when there's an error
-      });
   }
 
   ngOnDestroy() { this.sub.unsubscribe }

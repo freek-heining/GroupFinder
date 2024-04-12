@@ -17,13 +17,14 @@ import { environment } from '../../environments/environment';
 export class GamesComponent implements OnInit {
   constructor(private gamesService: GameService, public dialog: MatDialog) { }
 
-  pageTitle: string = 'Game List';
-  errorMessage: string = '';
+  public pageTitle: string = 'Game List';
+  private errorMessage: string = '';
+  private userId?: string;
+  private lowValue!: number;
+  private highValue!: number;
 
-  private userId!: string;
-  lowValue!: number;
-  highValue!: number;
   // TODO: Add loading spinner
+
   public game = {
     hostPlayer: {} as IUser,
     hostPlayerRace: {} as IRace
@@ -68,7 +69,7 @@ export class GamesComponent implements OnInit {
     dialogRef.afterClosed().subscribe(
       result => {
         this.game = result;
-        this.game.hostPlayerId = this.userId;
+        this.game.hostPlayerId = this.userId!;
         this.gamesService.createGame$(this.game).subscribe(
           game => this.games.push(game)
         );
@@ -95,11 +96,10 @@ export class GamesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('Inside games.OnInit');
     const userId = localStorage.getItem(environment.localUserId);
     if (userId) {
       this.userId = userId
-    } else {
-      throw new Error('No userId found!');
     }
 
     this.sub = this.gamesService.getGames$().subscribe({

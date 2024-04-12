@@ -1,5 +1,5 @@
 export interface IUser {
-  id: string | undefined,
+  id: string | undefined, // Undefined is for creating a user without id
   firstName: string,
   lastName: string,
   hometown: string,

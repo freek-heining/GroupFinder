@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { LoginMenuComponent } from './login-menu/login-menu.component';
 import { RouterModule } from '@angular/router';
 import { ApplicationPaths } from './api-authorization.constants';
-import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,7 +22,6 @@ import { RegisterComponent } from './register/register.component';
   ],
   imports: [
     CommonModule,
-    HttpClientModule,
     RouterModule.forChild(
       [
         { path: ApplicationPaths.Register, component: RegisterComponent },

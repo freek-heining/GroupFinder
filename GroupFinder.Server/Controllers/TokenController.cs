@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LookingForGroup.AngularApp.Controllers;
 
-[Authorize]
+[AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
 public class TokenController(ITokenService tokenService) : ControllerBase
 {
     private readonly ITokenService _tokenService = tokenService;
-
-    [AllowAnonymous]
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetRefreshToken(string id)
     {
@@ -34,7 +33,6 @@ public class TokenController(ITokenService tokenService) : ControllerBase
         else
             return Ok(new { Message = $"Refresh token set", Token = refreshInfo.RefreshToken });
     }
-
 
     [HttpPost("{id}")]
     public async Task<IActionResult> DeleteRefreshToken(string id)

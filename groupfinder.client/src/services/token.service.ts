@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, tap } from "rxjs";
+import { Observable, tap, throwError } from "rxjs";
 import { environment } from "../environments/environment";
 import { IRefreshModel } from "../interfaces/IRefreshModel";
 
@@ -14,6 +14,10 @@ export class TokenService {
   getRefreshToken$(id: string): Observable<IRefreshModel> {
     console.log('Getting refresh token...');
 
+    if (!id) {
+      throwError(() => 'No userId found!');
+    }
+
     return this.http.get<IRefreshModel>(environment.tokenApiUrl + '/' + id)
       .pipe(
         tap(data => data ?
@@ -24,6 +28,10 @@ export class TokenService {
 
   setRefreshToken$(refreshInfo: IRefreshModel): Observable<boolean> {
     console.log('Setting refresh token...');
+
+    if (!refreshInfo.id) {
+      throwError(() => 'No userId found!');
+    }
 
     return this.http.post<boolean>(environment.tokenApiUrl, refreshInfo)
       .pipe(
@@ -36,7 +44,11 @@ export class TokenService {
   deleteRefreshToken$(id: string): Observable<boolean> {
     console.log('Deleting refresh token...');
 
-    return this.http.post<boolean>(environment.tokenApiUrl + '/', id)
+    if (!id) {
+      throwError(() => 'No userId found!');
+    }
+
+    return this.http.post<boolean>(environment.tokenApiUrl + '/' + id, {})
       .pipe(
         tap(data => data ?
           console.log('Refresh token deleted for id:', JSON.stringify(id)) :

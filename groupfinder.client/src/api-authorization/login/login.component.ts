@@ -46,12 +46,21 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.loggedIn = true;
           this.message$.next('The login was successful.');
           console.log('The login was successful.');
-          this.router.navigateByUrl(returnUrl, { replaceUrl: true }); // When loginSuccess = true, navigate while replacing the current state in history.
+          this.navigateTo(returnUrl, true ); // When loginSuccess = true, navigate while replacing the current state in history.
         }
         else {
           this.message$.next('The login was invalid.');
           this.loggedIn = false;
         }
+      });
+  }
+
+  private navigateTo(path: string, replaceUrl: boolean) {
+    this.router.navigateByUrl(path, { replaceUrl: replaceUrl, state: { local: true } })
+      .then(nav => {
+        console.log('Navigate succes: ' + nav); // true if navigation is successful
+      }, err => {
+        console.error('Navigate failure: ' + err) // when there's an error
       });
   }
 

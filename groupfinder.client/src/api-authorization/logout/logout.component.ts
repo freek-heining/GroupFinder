@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthenticateService } from '../../services/authenticate.service';
 import { environment } from '../../environments/environment';
 import { TokenService } from '../../services/token.service';
+import { ApplicationPaths } from '../api-authorization.constants';
 
 @Component({
   selector: 'app-logout',
@@ -32,17 +33,29 @@ export class LogoutComponent implements OnInit {
     }
   }
 
-  private async logout() {
-    const isAuthenticated: boolean = await firstValueFrom(this.authenticateService.isAuthenticated$());
+  private logout() {
+    const userId: string | null = localStorage.getItem(environment.localUserId);
 
-    if (isAuthenticated) {
-      console.log('logging off');
+    if (userId) { // If no id, then nobody is logged in and no leftovers
+      console.log('logging off user id: ' + userId);
       sessionStorage.removeItem(environment.sessionAccessToken);
       sessionStorage.removeItem(environment.sessionAccessTokenExpiry);
-      this.tokenService.deleteRefreshToken$(environment.localUserId);
-      this.router.navigate(["/"], { replaceUrl: true });
+      this.tokenService.deleteRefreshToken$(userId).subscribe({ complete: () => 'Refresh token deleted' });
+      localStorage.removeItem(environment.localUserId);
+      this.navigateTo(ApplicationPaths.Login, true);
     }
-    else
+    else {
       console.log('already logged off');
+      this.navigateTo(ApplicationPaths.Login, true)
+    }
+  }
+
+  private navigateTo(path: string, replaceUrl: boolean) {
+    this.router.navigateByUrl(path, { replaceUrl: replaceUrl, state: { local: true } })
+      .then(nav => {
+        console.log('Navigate succes: ' + nav); // true if navigation is successful
+      }, err => {
+        console.error('Navigate failure: ' + err) // when there's an error
+      });
   }
 }

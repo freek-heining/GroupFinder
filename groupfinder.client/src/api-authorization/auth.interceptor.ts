@@ -1,27 +1,27 @@
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, share } from "rxjs";
-import { AuthenticateService } from "../services/authenticate.service";
+import { Observable } from "rxjs";
 import { environment } from "../environments/environment";
+import { AuthenticateService } from "../services/authenticate.service";
 
 @Injectable({
   providedIn: 'root'
 })
 
-// When authenticated: during http requests, the interceptor clones the request and attaches the bearer in the header 'Authorization' 
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthenticateService) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    console.log('Inside auth.interceptor');
+    const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
 
-    const authenticated$ = this.authService.isAuthenticated$().pipe(share()); // share not working... remove?
-
-    if (authenticated$.subscribe()) {
-      const tokenizedReq: HttpRequest<unknown> = request.clone({ headers: request.headers.set('Authorization', `Bearer ${sessionStorage.getItem(environment.sessionAccessToken)}`) });
-      return next.handle(tokenizedReq);
+    if (accessToken) {
+      request = this.addAuthenticationToken(request, accessToken)
     }
 
-    return next.handle(request); // If unauthorized, pass along unedited http request
+    return next.handle(request);
+  }
+
+  private addAuthenticationToken(request: HttpRequest<unknown>, accessToken: string) {
+    return request.clone({ setHeaders: {Authorization: 'Bearer ' + accessToken} });
   }
 }
