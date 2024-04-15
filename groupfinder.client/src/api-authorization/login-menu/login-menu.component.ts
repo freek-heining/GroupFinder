@@ -23,10 +23,10 @@ export class LoginMenuComponent implements OnInit, AfterContentChecked, OnDestro
   }
 
   ngAfterContentChecked() {
-    console.log('Inside menu ngAfterContentChecked!')
+    //console.log('Inside menu ngAfterContentChecked!')
     this.isUserAuthenticated$ = this.authenticateService.isAuthenticated$();
     this.returnUrl = this.router.routerState.snapshot.url;
-    console.log('returnUrl = ' + this.returnUrl);
+    //console.log('returnUrl = ' + this.returnUrl);
   }
 
   IsAuthenticated() {

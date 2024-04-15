@@ -25,7 +25,11 @@ export const environment = {
   // Local & session storage paths
   localUserId:                'userId',
   sessionAccessToken:         'accessToken',
-  sessionAccessTokenExpiry:   'accessTokenExpiry'
+  sessionAccessTokenExpiry: 'accessTokenExpiry',
+
+  // Keys
+  encryptKey: '5983710380284139',
+  ivKey:      '3058202590821485'
 };
 
 /*
