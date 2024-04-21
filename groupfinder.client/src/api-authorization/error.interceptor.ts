@@ -32,7 +32,11 @@ export class ErrorInterceptor implements HttpInterceptor {
 
             switch (error.status) {
               case 401: // 401 Unauthorized
-                if (request.url.includes('login')) { // Login failure 401
+                if (request.url.includes('login') && error.error?.detail === 'LockedOut') { // Locked out! Show this to user and tell to wait
+                  errorMessage = `Server returned code: ${error.status}, error detail is: ${error.error?.detail}, error message is: ${error.message}`;
+                  break;
+                }
+                else if (request.url.includes('login')) { // Login failure 401
                   console.log('URL includes "login", so skip refresh process');
                   break;
                 } else if (request.url.includes('refresh')) { // Refresh token expired 401
