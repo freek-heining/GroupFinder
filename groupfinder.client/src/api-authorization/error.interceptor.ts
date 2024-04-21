@@ -6,9 +6,7 @@ import { Router } from "@angular/router";
 import { ApplicationPaths } from "./api-authorization.constants";
 import { AuthenticateService } from "../services/authenticate.service";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 
 // Handles general errors, API errors and token refreshing on a 401
 export class ErrorInterceptor implements HttpInterceptor {
@@ -33,44 +31,46 @@ export class ErrorInterceptor implements HttpInterceptor {
             errorMessage = `Server returned code: ${error.status}, error message is: ${error.message}`;
 
             switch (error.status) {
-              case 401: // Unauthorized
-                // Don't refresh on login or refresh 401's
-                if (request.url.includes('login') || request.url.includes('refresh')) { 
-                  console.log('URL includes login or refresh, so skip refresh process...');
+              case 401: // 401 Unauthorized
+                if (request.url.includes('login')) { // Login failure 401
+                  console.log('URL includes "login", so skip refresh process');
                   break;
+                } else if (request.url.includes('refresh')) { // Refresh token expired 401
+                  console.log('URL includes "refresh", so skip refresh process, logout and reset');
+                  this.navigateTo(ApplicationPaths.LogOut, true);
                 }
-
-                // Start refresh process here
-                return this.handleRefresh(next, request, errorMessage);
-              case 403: // Forbidden
+                else { // Other 401's
+                  return this.handleRefresh(next, request, errorMessage); // Start refresh process here for all other 401 cases
+                }
+                break;
+              case 403: // 403 Forbidden
                 console.log('Error 403, navigating to unauthorized...');
                 this.navigateTo(ApplicationPaths.Unauthorized, true);
                 break;
             }
           }
-          console.error(errorMessage);
+          console.error('errorMessage: ' + errorMessage);
           return throwError(() => errorMessage);
         })
       )
   }
 
-  private handleRefresh(next: HttpHandler, request: HttpRequest<unknown>, errorMessage: string): Observable<HttpEvent<unknown>> {
+  // Performs the refresh and request forwarding for all 401 errors, EXCEPT for "login" and "refresh" 401 errors
+  private handleRefresh(next: HttpHandler, request: HttpRequest<unknown>, errorMessage: string): Observable<HttpEvent<unknown>> { 
+    console.log('Refresh started from error.interceptor');
     return this.authService.refreshBearer$()
       .pipe(
         take(1),
         switchMap((refreshed: boolean) => {
-          const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
+          const accessToken: string | null = localStorage.getItem(environment.localAccessToken);
 
           if (refreshed && accessToken) {
             return next.handle(this.addAuthenticationToken(request, accessToken));
           } else {
-            throw 'Refresh failed!';
+            console.error(`errorMessage: ` + errorMessage);
+            this.navigateTo(ApplicationPaths.LogOut, true);
+            return throwError(() => errorMessage);
           }
-        }),
-        catchError(err => {
-          console.error(`Logging out, error: ` + err);
-          this.navigateTo(ApplicationPaths.LogOut, true);
-          return throwError(() => errorMessage);
         })
       );
   }
@@ -82,9 +82,9 @@ export class ErrorInterceptor implements HttpInterceptor {
   private navigateTo(path: string, replaceUrl: boolean) {
     this.router.navigateByUrl(path, { replaceUrl: replaceUrl, state: { local: true } })
       .then(nav => {
-        console.log('Navigate succes: ' + nav); // true if navigation is successful
+        console.log('Navigate from error.interceptor succes: ' + nav); // true if navigation is successful
       }, err => {
-        console.error('Navigate failure: ' + err) // when there's an error
+        console.error('Navigate from error.interceptor failure: ' + err) // when there's an error
       });
   }
 }

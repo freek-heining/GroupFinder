@@ -22,10 +22,10 @@ export const environment = {
   // POST: Updates the email address and password of the logged-in user. Send NewEmail, NewPassword, and OldPassword in the request body
   manageInfoApiUrl:               '/identity/manage/info', 
 
-  // Local & session storage paths
-  localUserId:                'userId',
-  sessionAccessToken:         'accessToken',
-  sessionAccessTokenExpiry: 'accessTokenExpiry',
+  // Local storage paths
+  localUserId:            'userId',
+  localAccessToken:       'accessToken',
+  localAccessTokenExpiry: 'accessTokenExpiry',
 
   // Keys
   encryptKey: '5983710380284139',

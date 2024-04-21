@@ -1,6 +1,4 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { TokenService } from '../../services/token.service';
 
 @Component({
   selector: 'app-home',
@@ -8,11 +6,8 @@ import { TokenService } from '../../services/token.service';
 })
 
 export class HomeComponent implements OnInit {
-  public isUserAuthenticated?: boolean;
 
-  constructor(
-    private http: HttpClient,
-    private tokenService: TokenService) { }
+  constructor() { }
 
   ngOnInit(): void {
   }

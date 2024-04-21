@@ -5,9 +5,7 @@ import { environment } from "../environments/environment";
 import { IRefreshModel } from "../interfaces/IRefreshModel";
 import { EncryptDecryptService } from "./encrypt-decrypt.serivce";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 
 export class TokenService {
   constructor(private http: HttpClient,

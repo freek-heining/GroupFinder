@@ -4,9 +4,7 @@ import { Observable, tap } from "rxjs";
 import { environment } from "../environments/environment";
 import { IGame } from "../interfaces/IGame";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 
 export class GameService {
   constructor(private http: HttpClient) { }

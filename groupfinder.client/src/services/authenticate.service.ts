@@ -1,19 +1,18 @@
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
 import { HttpClient } from "@angular/common/http";
-import { Observable, Subscription, concatMap, map, of, switchMap, take, tap, throwError } from "rxjs";
+import { EMPTY, Observable, concatMap, map, of, switchMap, take, tap, throwError } from "rxjs";
 import { IAuthenticatedResponse } from "../interfaces/IAuthenticatedResponse";
 import { ILoginModel } from "../interfaces/ILoginModel";
 import { TokenService } from "./token.service";
 import { UserService } from "./user.service";
 import { IUser } from "../interfaces/IUser";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 
-export class AuthenticateService implements OnDestroy {
-  private sub!: Subscription;
+export class AuthenticateService {
+  public isRefreshing: boolean = false; // FLAG to prevent multple refreshes at the same time
+
   constructor(
     private tokenService: TokenService,
     private userService: UserService,
@@ -23,7 +22,7 @@ export class AuthenticateService implements OnDestroy {
     return this.getBearer$(credentials) // get bearer (IAuthenticatedResponse$)
       .pipe(
         take(1),
-        tap(authenticatedResponse => this.setAuthDataInSession(authenticatedResponse)), // Set token and expiry time in Session storage
+        tap(authenticatedResponse => this.setAuthDataInLocal(authenticatedResponse)), // Set token and expiry time in local storage
         concatMap((bearer: IAuthenticatedResponse) => this.userService.getUserByEmail$(credentials.email) // get current user for user's id later on (IUser$)
           .pipe(
             take(1),
@@ -45,36 +44,18 @@ export class AuthenticateService implements OnDestroy {
       )
   }
 
-  public isAuthenticated$(): Observable<boolean> { // Checks if token in local storage and not expired. Used by interceptor, guard and async pipe
-      const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
-      const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionAccessTokenExpiry);
-      const accessTokenExpired: boolean = this.accessTokenExpired();
-
-      console.log('Checking isAuthenticated$ true/false...');
-
-      if (!accessToken) { // No token stored = Not logged in previously or logged off
-        console.log('Token not found');
-        return of(false).pipe(take(1));
-      }
-      else if (expiryTimeInSeconds && accessTokenExpired) { // If expiry time AND expired
-        console.log('Token expired');
-        return of(false).pipe(take(1));
-      }
-      else { // If access token AND NOT expired = Logged in normally
-        console.log('Token ok');
-        return of(true).pipe(take(1));
-      }
-  }
-
-  // TODO: encrypt/decrypt refresh tokens in/from DB
   public refreshBearer$(): Observable<boolean> { 
     const userId: string | null = localStorage.getItem(environment.localUserId);
-
+    
     if (!userId) {
       console.error('No user id found for refreshing!');
       return of(false);
     }
+    else if (this.isRefreshing) {
+      return EMPTY; // Returns complete message obervable when already busy with a refresh (does nothing)
+    }
     else {
+      this.isRefreshing = true; // FLAG
       console.log('Trying to refresh bearer...');
       return this.tokenService.getRefreshToken$(userId) // Get user's refreshtoken from db (IRefreshModel)
         .pipe(
@@ -83,22 +64,25 @@ export class AuthenticateService implements OnDestroy {
             .pipe(
               take(1),
               tap(authenticatedResponse => {
-                this.setAuthDataInSession(authenticatedResponse); // Set new token + expiry time in Session storage (IAuthenticatedResponse)
+                this.setAuthDataInLocal(authenticatedResponse); // Set new token + expiry time in local storage (IAuthenticatedResponse)
                 console.log('Got refreshed bearer: ', JSON.stringify(authenticatedResponse));
               }) 
             )
           ),
           switchMap(authenticatedResponse => this.tokenService.setRefreshToken$({ id: userId, refreshToken: authenticatedResponse.refreshToken }) // Set new refresh token in db and return bool (IRefreshModel)
-            .pipe(take(1))
+            .pipe(
+              take(1),
+              tap(() => this.isRefreshing = false) // FLAG
+            )
           )
         );
     }
   }
 
-  private setAuthDataInSession(response: IAuthenticatedResponse): void {
+  private setAuthDataInLocal(response: IAuthenticatedResponse): void {
     console.log('Setting auth data...');
-    sessionStorage.setItem(environment.sessionAccessToken, response.accessToken);
-    sessionStorage.setItem(environment.sessionAccessTokenExpiry, this.calculateTokenExpiry(response.expiresIn)); // secs since Unix Epoch
+    localStorage.setItem(environment.localAccessToken, response.accessToken);
+    localStorage.setItem(environment.localAccessTokenExpiry, this.calculateTokenExpiry(response.expiresIn)); // secs since Unix Epoch
   }
 
   private calculateTokenExpiry(tokenExpiry: string): string { // Convert time in seconds to secs since Unix Epoch
@@ -110,19 +94,6 @@ export class AuthenticateService implements OnDestroy {
     return expiryTimeInSeconds.toString();
   }
 
-  private accessTokenExpired(): boolean {
-    console.log('Checking token expiry...');
-    const expiryTimeInSeconds: string | null = sessionStorage.getItem(environment.sessionAccessTokenExpiry);
-
-    if (!expiryTimeInSeconds) 
-      return true; // No expiryTime stored counts as true/expired
-    else {
-      const currentTime: number = Math.floor((new Date).getTime() / 1000); // secs since Unix Epoch
-      const expiryTime: number = parseInt(expiryTimeInSeconds);
-      return currentTime >= expiryTime;
-    }
-  }
-
   private getBearer$(credentials: ILoginModel): Observable<IAuthenticatedResponse> { // Performs the API login and retrieves bearer
     console.log('Getting bearer...');
 
@@ -131,6 +102,4 @@ export class AuthenticateService implements OnDestroy {
         tap(authenticatedResponse => authenticatedResponse ? console.log('Got bearer: ', JSON.stringify(authenticatedResponse)) : console.log('Failed to get bearer...'))
       );
   }
-
-  ngOnDestroy() { this.sub.unsubscribe }
 }

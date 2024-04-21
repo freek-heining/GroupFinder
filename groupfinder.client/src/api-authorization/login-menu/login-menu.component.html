@@ -1,33 +1,11 @@
-<!--<div *ngIf="(myObservable$ | async) as myObservable">
-  <my-random-component [id]="myObservable.id">
-    <my-random-component2 [name]="myObservable.name">
-</div>
-Wrapping the code in ngIf does 2 things:
+<ng-container *ngIf="isUserAuthenticated$ | async; else notAuthenticated">
+  <button *ngIf="user$ | async as user" mat-button [routerLink]='["/authentication/profile"]' title="Profile" [routerLinkActive]="['link-active']">Hello {{ user.firstName }}</button>
+  <button mat-button [routerLink]='["/authentication/logout"]' [state]='{ local: true }' title="Logout" [routerLinkActive]="['link-active']">Logout</button>
+</ng-container>
 
-It cuts down on duplicate code
-The components do not exist until myObservable$ is ready-->
+<ng-template #notAuthenticated>
+  <button mat-button [routerLink]='["/authentication/register"]' [routerLinkActive]="['link-active']">Register</button>
+  <button mat-button [routerLink]='["/authentication/login"]' [state]='{ local: true }' [queryParams]="{returnUrl: returnUrl}" [routerLinkActive]="['link-active']">Login</button>
+</ng-template>
 
-
-<!--<ul class="navbar-nav" *ngIf="isUserAuthenticated$ | async">
-    <li class="nav-item">
-        <a  class="nav-link text-dark" [routerLink]='["/authentication/profile"]' title="Manage">Hello {{ userName }}</a>
-    </li>
-    <li class="nav-item">
-        <a  class="nav-link text-dark" [routerLink]='["/authentication/logout"]' [state]='{ local: true }' title="Logout">Logout</a>
-    </li>
-</ul>-->
-<ul class="navbar-nav">
-  <!--<ul class="navbar-nav" *ngIf="(isUserAuthenticated$ | async) !== true">-->
-  <li class="nav-item">
-    <a class="nav-link text-dark" [routerLink]='["/authentication/register"]'>Register</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-dark" [routerLink]='["/authentication/login"]' [state]='{ local: true }' [queryParams]="{returnUrl: returnUrl}">Login</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link text-dark" [routerLink]='["/authentication/logout"]' [state]='{ local: true }' title="Logout">Logout</a>
-  </li>
-</ul>
-
-<button type="button" (click)="IsAuthenticated()">Authenticated?</button>
-<p>Authenticated = {{isUserAuthenticated}}</p>
+<button (click)="onClick()">Sync</button>

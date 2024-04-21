@@ -28,6 +28,7 @@ import { AuthInterceptor } from '../api-authorization/auth.interceptor';
 import { ErrorInterceptor } from '../api-authorization/error.interceptor';
 //import { AuthGuard } from '../api-authorization/auth.guard';
 import { AboutComponent } from './about/about.component';
+import { MatMenuModule } from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { AboutComponent } from './about/about.component';
     ]),
     BrowserAnimationsModule,
     MatPaginatorModule,
+    MatMenuModule,
     MatButtonModule,
     MatIconModule,
     MatDialogModule,

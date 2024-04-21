@@ -4,9 +4,7 @@ import { Observable, tap } from "rxjs";
 import { environment } from "../environments/environment";
 import { IRace } from "../interfaces/IRace";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 
 export class RaceService {
   constructor(private http: HttpClient) { }

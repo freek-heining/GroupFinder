@@ -1,37 +1,19 @@
 <header>
-  <nav
-    class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"
-  >
-    <div class="container">
-      <a class="navbar-brand" [routerLink]="['/']">GroupFinder.AngularApp</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target=".navbar-collapse"
-        aria-label="Toggle navigation"
-        [attr.aria-expanded]="isExpanded"
-        (click)="toggle()"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
-           [ngClass]="{ show: isExpanded }">
-        <ul class="navbar-nav flex-grow">
-          <li class="nav-item"
-              [routerLinkActive]="['link-active']"
-              [routerLinkActiveOptions]="{ exact: true }">
-            <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
-          </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/games']">Games</a>
-          </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/about']">About</a>
-          </li>
-        </ul>
-        <app-login-menu></app-login-menu>
-      </div>
+  <nav>
+    <div class="menu">
+      <a [routerLink]="['/']">GroupFinder.AngularApp</a>
+
+      <button mat-button [routerLink]="['/']" [routerLinkActive]="['link-active']">Home</button>
+
+      <button mat-button [matMenuTriggerFor]="gamesMenu">Games</button>
+      <mat-menu #gamesMenu="matMenu">
+        <button mat-menu-item [routerLink]="['/games']" [routerLinkActive]="['link-active']">Overview</button>
+        <button mat-menu-item [routerLink]="['/games']" [routerLinkActive]="['link-active']">More games</button>
+      </mat-menu>
+
+      <button mat-button [routerLink]="['/about']" [routerLinkActive]="['link-active']">About</button>
+
+      <app-login-menu></app-login-menu>
     </div>
   </nav>
 </header>

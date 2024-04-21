@@ -2,17 +2,16 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/c
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environments/environment";
-import { AuthenticateService } from "../services/authenticate.service";
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthenticateService) { }
+  constructor() { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const accessToken: string | null = sessionStorage.getItem(environment.sessionAccessToken);
+    const accessToken: string | null = localStorage.getItem(environment.localAccessToken);
 
     if (accessToken) {
       request = this.addAuthenticationToken(request, accessToken)

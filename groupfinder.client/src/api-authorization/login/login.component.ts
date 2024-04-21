@@ -4,6 +4,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { AuthenticateService } from '../../services/authenticate.service';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LoginStatusService } from '../../services/loginStatus.serivce';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private loginStatusService: LoginStatusService,
     private authenticateService: AuthenticateService) { }
 
   async ngOnInit(): Promise<void> { // TODO: Why async promise?
@@ -46,7 +48,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.loggedIn = true;
           this.message$.next('The login was successful.');
           console.log('The login was successful.');
-          this.navigateTo(returnUrl, true ); // When loginSuccess = true, navigate while replacing the current state in history.
+          this.loginStatusService.syncAuthenticatedStatus(); // Sync status for menu bar display etc
+          this.navigateTo(returnUrl, true ); // When loginSuccess = true, navigate while replacing the current state in history
         }
         else {
           this.message$.next('The login was invalid.');
@@ -58,9 +61,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   private navigateTo(path: string, replaceUrl: boolean) {
     this.router.navigateByUrl(path, { replaceUrl: replaceUrl, state: { local: true } })
       .then(nav => {
-        console.log('Navigate succes: ' + nav); // true if navigation is successful
+        console.log('Navigate from login succes: ' + nav); // true if navigation is successful
       }, err => {
-        console.error('Navigate failure: ' + err) // when there's an error
+        console.error('Navigate from login failure: ' + err) // when there's an error
       });
   }
 

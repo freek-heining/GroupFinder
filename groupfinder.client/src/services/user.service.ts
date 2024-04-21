@@ -4,9 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable, map, take, tap } from "rxjs";
 import { IUser } from "../interfaces/IUser";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
   constructor(private http: HttpClient) { }
 
@@ -28,7 +26,7 @@ export class UserService {
       );
   }
 
-  getUserById$(id: number): Observable<IUser> {
+  getUserById$(id: string): Observable<IUser> {
     return this.http.get<IUser>(environment.userByIdApiUrl + id)
       .pipe(
         take(1),
@@ -46,7 +44,7 @@ export class UserService {
       );
   }
 
-  registerUser$(user: IUser): Observable<IUser> { // TODO: return value?
+  registerUser$(user: IUser): Observable<IUser> {
     return this.http.post<IUser>(environment.registerApiUrl, user)
       .pipe(
         take(1),
