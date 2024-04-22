@@ -1,25 +1,27 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
-import { AuthenticateService } from '../services/authenticate.service';
+import { LoginStatusService } from '../services/loginStatus.serivce';
+import { Observable, take, tap } from 'rxjs';
 
-// The auth guard blocks unauthorized access to url endpoints by determing if a route can be activated.
+// Functional route guard. Class bases guards are deprecated!
+// This auth guard blocks unauthorized access to url endpoints by determing if a route can be activated.
 // False will redirect to the login screen, true will continue the navigation
 export const AuthGuard: CanActivateFn = (
-  //route: ActivatedRouteSnapshot,
-  //state: RouterStateSnapshot) => {
-  //  console.log('Inside auth.guard');
-  //  const router: Router = inject(Router);
-  //  const authService = inject(AuthenticateService);
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  console.log('Inside auth.guard');
+  const router: Router = inject(Router);
+  const loginStatusService = inject(LoginStatusService);
+  const isUserAuthenticated$: Observable<boolean> = loginStatusService.isAuthenticatedSubject$;
 
-  //  const authenticated$ = authService.isAuthenticated$();
-  //  // TODO: not good
-  //  if (authenticated$.subscribe()) {
-  //    console.log('Guard OK');
-  //    return true;
-  //  }
-  //  else {
-  //    console.log('Guard FALSE');
-  //    router.navigate(["/authentication/login"], { queryParams: { returnUrl: state.url }, state: { local: true } });
-  //    return false;
-  //  }
-  }
+  return isUserAuthenticated$.pipe(
+    take(1),
+    tap(success => {
+      console.log('Guard authenticated = ' + success)
+      if (!success) {
+        router.navigate(["/authentication/login"], { queryParams: { returnUrl: state.url }, state: { local: true } });
+      }
+    })
+  )
+}

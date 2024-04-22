@@ -26,7 +26,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthInterceptor } from '../api-authorization/auth.interceptor';
 import { ErrorInterceptor } from '../api-authorization/error.interceptor';
-//import { AuthGuard } from '../api-authorization/auth.guard';
+import { AuthGuard } from '../api-authorization/auth.guard';
 import { AboutComponent } from './about/about.component';
 import { MatMenuModule } from '@angular/material/menu';
 
@@ -51,8 +51,7 @@ import { MatMenuModule } from '@angular/material/menu';
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'about', component: AboutComponent, pathMatch: 'full' },
-      { path: 'games', component: GamesComponent},
-      //{ path: 'games', component: GamesComponent, canActivate: [AuthGuard] },
+      { path: 'games', component: GamesComponent, canActivate: [AuthGuard] },
       { path: 'games/:id', component: GameDetailComponent },
       { path: '', redirectTo: '', pathMatch: 'full' },
       { path: '**', component: PageNotFoundComponent }
