@@ -26,7 +26,7 @@ export class GamesComponent implements OnInit {
   // TODO: Add loading spinner
 
   public game = {
-    hostPlayer: {} as IUser,
+    hostPlayer: {} as IUser, // The as keyword is a Type Assertion in TypeScript which tells the compiler to consider the object as another type than the type the compiler infers the object to be.
     hostPlayerRace: {} as IRace
   } as IGame;
 
@@ -56,8 +56,8 @@ export class GamesComponent implements OnInit {
     filterBy = filterBy.toLocaleLowerCase();
     return this.games.filter((game: IGame) =>
       game.title.toLocaleLowerCase().includes(filterBy) ||
-      game.hostPlayer.firstName.toLocaleLowerCase().includes(filterBy) ||
-      game.hostPlayer.lastName.toLocaleLowerCase().includes(filterBy));
+      game.hostPlayer.firstName?.toLocaleLowerCase().includes(filterBy) ||
+      game.hostPlayer.lastName?.toLocaleLowerCase().includes(filterBy));
   }
 
   // Create Game

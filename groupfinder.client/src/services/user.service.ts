@@ -3,6 +3,7 @@ import { environment } from "../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { Observable, map, take, tap } from "rxjs";
 import { IUser } from "../interfaces/IUser";
+import { ILoginModel } from "../interfaces/ILoginModel";
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -44,11 +45,11 @@ export class UserService {
       );
   }
 
-  registerUser$(user: IUser): Observable<IUser> {
-    return this.http.post<IUser>(environment.registerApiUrl, user)
+  registerUser$(credentials: ILoginModel): Observable<unknown> {
+    return this.http.post<unknown>(environment.registerApiUrl, credentials)
       .pipe(
         take(1),
-        tap(user => console.log('registerUser$', JSON.stringify(user)))
+        tap(() => console.log('registerUser$: ' + credentials.email))
       );
   }
 }

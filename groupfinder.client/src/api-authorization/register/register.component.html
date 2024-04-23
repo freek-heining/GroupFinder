@@ -4,41 +4,15 @@
 
 <form [formGroup]="registerForm" (ngSubmit)="onSubmit(registerForm)">
   <mat-form-field>
-    <mat-label>First name</mat-label>
-    <input matInput placeholder="Your real first name" type="text" formControlName="firstName" required>
-    <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-
-    @if (firstName?.hasError('minlength')) {
-    <mat-error>First name must be at least 2 characters long</mat-error>
-    }
-    @if (firstName?.hasError('required')) {
-    <mat-error>First name is required</mat-error>
-    }
-  </mat-form-field>
-
-  <mat-form-field>
-    <mat-label>Last name</mat-label>
-    <input matInput placeholder="Your real last name" type="text" formControlName="lastName" required />
-    <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-
-    @if (lastName?.hasError('minlength')) {
-    <mat-error>Last name must be at least 2 characters long</mat-error>
-    }
-    @if (lastName?.hasError('required')) {
-    <mat-error>Last name is required</mat-error>
-    }
-  </mat-form-field>
-
-  <mat-form-field>
     <mat-label>Email</mat-label>
     <input matInput placeholder="Your real email address" type="email" formControlName="email" required>
     <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
 
     @if (email?.hasError('required')) {
-    <mat-error>Email address is required</mat-error>
+      <mat-error>Email address is required</mat-error>
     }
     @if (email?.hasError('email')) {
-    <mat-error>Email address is invalid</mat-error>
+      <mat-error>Email address is invalid</mat-error>
     }
   </mat-form-field>
 
@@ -48,44 +22,16 @@
     <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
 
     @if (emailConfirmation?.hasError('required')) {
-    <mat-error>Email address is required</mat-error>
+      <mat-error>Email address is required</mat-error>
     }
     @if (emailConfirmation?.hasError('email')) {
-    <mat-error>Email address is invalid</mat-error>
+      <mat-error>Email address is invalid</mat-error>
     }
     @if (!emailConfirmation?.hasError('required') && (email?.value !== emailConfirmation?.value)) {
-    {{registerForm.get('emailConfirmation')?.setErrors({'incorrect': true})}}
+      {{registerForm.get('emailConfirmation')?.setErrors({'incorrect': true})}}
     }
     @if (!emailConfirmation?.hasError('required') && (email?.value !== emailConfirmation?.value)) {
-    <mat-error>Email address is not identical</mat-error>
-    }
-  </mat-form-field>
-
-  <mat-form-field>
-    <mat-label>Hometown</mat-label>
-    <input matInput type="text" formControlName="hometown" required>
-    <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-    <mat-hint>Where you currently live</mat-hint>
-
-    @if (hometown?.hasError('minlength')) {
-    <mat-error>Hometown must be at least 2 characters long</mat-error>
-    }
-    @if (hometown?.hasError('required')) {
-    <mat-error>Hometown is required</mat-error>
-    }
-  </mat-form-field>
-
-  <mat-form-field hintLabel="Min. 20 characters">
-    <mat-label>Biography</mat-label>
-    <input matInput #bio type="text" formControlName="biography" required>
-    <mat-icon matSuffix>sentiment_very_satisfied</mat-icon>
-    <mat-hint align="end">{{bio.value.length}}/20</mat-hint>
-
-    @if (biography?.hasError('minlength')) {
-    <mat-error>Biography must be at least 20 characters long</mat-error>
-    }
-    @if (biography?.hasError('required')) {
-    <mat-error>Biography is required</mat-error>
+      <mat-error>Email address is not identical</mat-error>
     }
   </mat-form-field>
 
@@ -96,10 +42,10 @@
     <mat-hint align="end">{{ pass.value.length }}/6</mat-hint>
 
     @if (password?.hasError('pattern')) {
-    <mat-error>Password needs 1 special character</mat-error>
+      <mat-error>Password needs 1 special character</mat-error>
     }
     @if (password?.hasError('required')) {
-    <mat-error>Password is required</mat-error>
+      <mat-error>Password is required</mat-error>
     }
   </mat-form-field>
 
